@@ -2,11 +2,7 @@
   <v-app id="inspire">
     <v-app-bar flat>
       <v-container class="fill-height d-flex align-center">
-       <v-img
-  max-height="50"
-  max-width="50"
-  src="C:\TrelloJPEricVivi\pjvue\src\assets\treco.png"
-></v-img>
+        <v-img v-img :width="300" aspect-ratio="1/1" v-bind:src="logoImagem" class="my-3" contain></v-img>
         <v-avatar class="me-10 ms-4" color="grey-darken-1" size="32"></v-avatar>
 
         <v-btn v-for="link in links" :key="link" variant="text">
@@ -25,8 +21,8 @@
       <v-container>
         <v-row>
           <v-col cols="2">
-            <v-sheet rounded="lg">
-              <v-list rounded="lg">
+            <v-sheet :rounded=true>
+              <v-list :rounded=true>
                 <v-list-item v-for="n in 2" :key="n" link>
                   <v-list-item-title>
                     List Item {{ n }}
@@ -45,7 +41,7 @@
           </v-col>
 
           <v-col>
-            <v-sheet min-height="70vh" rounded="lg">
+            <v-sheet min-height="70vh" :rounded=true>
               <v-card max-width="200" class="mx-auto">
 
 
@@ -115,7 +111,7 @@
             </v-sheet>
           </v-col>
           <v-col>
-            <v-sheet min-height="70vh" rounded="lg">
+            <v-sheet min-height="70vh" :rounded=true>
               <v-card max-width="200" class="mx-auto">
 
 
@@ -185,9 +181,8 @@
             </v-sheet>
           </v-col>
           <v-col>
-            <v-sheet min-height="70vh" rounded="lg">
+            <v-sheet min-height="70vh" :rounded=true>
               <v-card max-width="200" class="mx-auto">
-
 
                 <v-app-bar dark color="blue-grey darken-2">
                   <v-toolbar-title>Vivian</v-toolbar-title>
@@ -269,6 +264,15 @@ export default {
       'Profile',
       'Updates',
     ],
+
+    usuarios: [
+      'Vivian',
+      'Eric',
+      'João',
+      'Pedro',
+    ],
+
+    logoImagem: require('@/assets/trecoTP.jpeg'),
   }),
 }
 </script>

@@ -4,6 +4,8 @@ import vuetify from './plugins/vuetify'
 
 Vue.config.productionTip = false
 
+import './assets/trecoTP.jpeg'
+
 new Vue({
   vuetify,
   render: h => h(App),
