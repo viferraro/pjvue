@@ -2,7 +2,8 @@
   <v-app id="inspire">
     <v-app-bar flat>
       <v-container class="fill-height d-flex align-center">
-        <v-img v-img :width="300" aspect-ratio="1/1" v-bind:src="logoImagem" class="my-3" contain></v-img>
+        <v-img   max-height="85"
+        max-width="85" src="./assets/treco.png" class="my-3" contain></v-img>
         <v-avatar class="me-10 ms-4" color="grey-darken-1" size="32"></v-avatar>
 
         <v-btn v-for="link in links" :key="link" variant="text">
@@ -272,7 +273,7 @@ export default {
       'Pedro',
     ],
 
-    logoImagem: require('@/assets/trecoTP.jpeg'),
+    // logoImagem: require('@/assets/trecoTP.jpeg'),
   }),
 }
 </script>
