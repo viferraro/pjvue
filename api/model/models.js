@@ -15,7 +15,10 @@ var Usuario = null;
 // Variavel global que mantém o modelo dos quadros
 //
 var Quadro = null;
-
+//
+// Variavel global que mantém o modelo das listas
+//
+var Lista = null;
 //
 // Variavel global que mantém o modelo dos cards
 //
