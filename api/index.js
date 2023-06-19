@@ -8,5 +8,8 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/mean');
+var usuarios = require('./controller/usuarios.js');
+app.use('/usuarios', usuarios);
+
+console.log('Servidor rodando em http://localhost:3000');
+app.listen(3000);
