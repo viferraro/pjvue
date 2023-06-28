@@ -12,7 +12,7 @@ const models = require('../model/models.js');
 const auth = require("../auth/auth.js");
 
 // endpoint para retornar uma lista de usuários paginada	
-router.get('/usuarios', async function(req, res){
+router.get('/', async function(req, res){
     var page = req.query.page || 1;
     var itemsPerPage = req.query.itemsPage || 5;
 
@@ -26,60 +26,66 @@ router.get('/usuarios', async function(req, res){
     res.json({ items, totalItems });
 });
 
-
 // endpoint para retornar um usuário específico
-router.get('/usuarios/:email', async function(req, res){
+router.get('/:email', async function(req, res){
     var db = await models.connect();
-    var usuario = await db.Usuario.findById(req.params.id);
+    var usuario = await db.Usuario.find({ email: req.params.email });
     res.json(usuario);
 });
 
 
 // endpoint para criar um novo usuário
-router.post('/usuarios', async function(req, res){
+router.post('/', async function(req, res){
     var db = await models.connect();
     var nome = req.body.nome;
     var email = req.body.email;
     var senha = req.body.senha;
     var senhaConfirmacao = req.body.senhaConfirmacao;
 
-    if(!nome || !email || !senha || !senhaConfirmacao){
-        res.status(400).json({ erro: 'Dados incompletos' });
+    var usuarioEmail = await db.Usuario.findOne({ email: email }).exec();
+
+    if (usuarioEmail) {
+        res.status(400).json({message: "Usuário já cadastrado."});
         return;
     }
 
-    if(senha != senhaConfirmacao){
-        res.status(400).json({ erro: 'Dados não conferem' });
+    if (nome.length == 0) {
+        res.status(400).json({message: "O nome do usuário não pode ser vazio."});
         return;
     }
 
-    if(!validaEmail(email)){
-        res.status(400).json({ erro: 'Dados inválidos' });
+    if (!validaEmail(email)) {
+        res.status(400).json({message: "O e-mail do usuário não está em um formato adequado."});
         return;
     }
 
-    if(!validaSenha(senha)){
-        res.status(400).json({ erro: 'Dados inválidos' });
+    if (!validaSenha(senha)) {
+        res.status(400).json({message: "A senha do usuário não é válida."});
         return;
     }
 
-    var senhaHash = bcrypt.hashSync(senha, 10);
+    if (senha != senhaConfirmacao) {
+        res.status(400).json({message: "A confirmação de senha está diferente da senha."});
+        return;
+    }
 
-    var usuario = new db.Usuario({
-        nome: nome,
-        email: email,
-        senha: senhaHash,
-        dataCriacao: new Date(),
-        dataAtualizacao: new Date()
+    var senhaHash = await bcrypt.hash(senha, 10);
+
+    var usuario = await db.Usuario.create({
+        dataRegistro: new Date(),
+        dataAtualizacao: new Date(),
+        nome,
+        email,
+        senha: senhaHash
     });
 
     await usuario.save();
-    return res.json({message: 'Usuário criado com sucesso'}); 
+    res.json({ message: "O novo usuário foi criado." }) 
     
 });
 
 // endpoint para atualizar um usuário
-router.put('/usuarios/:email', async function(req, res){
+router.put('/:email', async function(req, res){
     var db = await models.connect();
     var email = req.params.email;
     var nome = req.body.nome;
@@ -118,7 +124,7 @@ router.put('/usuarios/:email', async function(req, res){
 
 
 // endpoint para remover um usuário
-router.delete('/usuarios/:email', async function(req, res){
+router.delete('/:email', async function(req, res){
     var db = await models.connect();
     var email = req.params.email;
 
@@ -129,7 +135,7 @@ router.delete('/usuarios/:email', async function(req, res){
         return;
     }
 
-    await usuario.remove();
+    await usuario.deleteOne();
     return res.json({message: 'Usuário removido com sucesso'});
 });
 
@@ -222,7 +228,7 @@ router.post('/esqueci', async function(req, res){
     })
 
     var link = config.frontend.hostname + "/login/reset?token=" + usuario.tokenSenha + "&email=" + usuario.email;
-    var contents = "Se você solicitou uma recuperação de senha, clique <a href='" + url + "'>aqui</a>.<br>";
+    var contents = "Se você solicitou uma recuperação de senha, clique <a href='" + link + "'>aqui</a>.<br>";
     contents += "Se não tiver pedido a recuperação de senha, relaxa. Só tentaram te dar um golpe!";
 
     var mailOptions = {
@@ -230,7 +236,7 @@ router.post('/esqueci', async function(req, res){
         to: usuario.email,
         subject: "Recuperação de senha",
         text: contents,
-        html: contents
+        html: contents  
     };
     
     transporter.sendMail(mailOptions, function(error, info){

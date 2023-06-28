@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const config = require('../config/config.js');
+require('dotenv').config();
 
 //
 // Variavel global que mantém a conexao com o banco de dados
@@ -19,7 +20,7 @@ var Quadro = null;
 //
 // Variavel global que mantém o modelo dos cards
 //
-var Card = null;
+var Lista = null;
 
 //
 // Conecta com o banco de dados e carrega os modelos
@@ -30,12 +31,15 @@ async function connect() {
         connection = mongoose.connection;
         connection.on('error', console.error.bind(console, 'Erro na conexão com o MongoDB:'));
 
+        console.log('Connected to MongoDB');
+
         var usuarioSchema = {
             nome: String,
             email: String,
             senha: String,
             dataCriacao: Date,
             dataAtualizacao: Date,
+            token: String,
             tokenSenha: String,
             dataTokenSenha: Date,
             falhasLogin: { type: Number, default: 0 },
@@ -48,24 +52,24 @@ async function connect() {
             corTexto: String,
             editavel: Boolean,
             favorito: Boolean,
-            listas: [{ 
-                titulo: String, 
-                cards: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Card' }]
-            }]
+            listas: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lista' }]
         }
 
-        var cardSchema = {
-            conteudo: String,
-            dtCriacao: Date,
-            dtUltimaEdicao: Date
+        var listaSchema = {
+            titulo: String,
+            cards: [{ 
+                conteudo: String,
+                dtCriacao: Date,
+                dtUltimaEdicao: Date,
+            }]
         }
 
         Usuario = mongoose.model('Usuario', usuarioSchema, 'usuarios');
         Quadro = mongoose.model('Quadro', quadroSchema, 'quadros');
-        Card = mongoose.model('Card', cardSchema, 'cards');
+        Lista = mongoose.model('Lista', listaSchema, 'listas');
     }
 
-    return { connection, Usuario, Quadro, Card }    
+    return { connection, Usuario, Quadro, Lista }    
 }
 
 module.exports = { connect }

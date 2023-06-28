@@ -5,7 +5,7 @@ const config = require('../config/config.js');
 const models = require('../model/models.js');
 
 // endpoint para recuperar os cards paginados
-router.get('/cards', async function(req, res, next) {
+router.get('/', async function(req, res, next) {
     var page = req.params.page || 1;
     var itemsPerPage = req.params.itemsPerPage || 5;
 
@@ -20,14 +20,14 @@ router.get('/cards', async function(req, res, next) {
 });
 
 // endpoint para recuperar um card
-router.get('/cards/:id', async function(req, res) {
+router.get('/:id', async function(req, res) {
     var db = await models.connect();
     var card = await db.Card.findById(req.params.id);
     res.json(card);
 });
 
 // endpoint para criar um card
-router.post('/cards', async function(req, res) {
+router.post('/', async function(req, res) {
     var db = await models.connect();
     var conteudo = req.body.conteudo;
 
@@ -43,7 +43,7 @@ router.post('/cards', async function(req, res) {
 });
 
 // endpoint para atualizar um card
-router.put('/cards/:id', async function(req, res) {
+router.put('/:id', async function(req, res) {
     var db = await models.connect();
     var card = await db.Card.findById(req.params.id);
 
@@ -60,7 +60,7 @@ router.put('/cards/:id', async function(req, res) {
 });
 
 // endpoint para remover um card
-router.delete('/cards/:id', async function(req, res) {
+router.delete('/:id', async function(req, res) {
     var db = await models.connect();
     var card = await db.Card.findById(req.params.id);
 
