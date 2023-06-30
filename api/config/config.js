@@ -15,7 +15,7 @@ module.exports = {
     },
 
     sendGrid: {
-        apiKey: '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',
+        apiKey: '',
         email: 'ericleal26@yahoo.com.br'
     }
 
