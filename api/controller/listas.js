@@ -4,17 +4,21 @@ var router = express.Router();
 const config = require('../config/config.js');
 const models = require('../model/models.js');
 
-// endpoint para recuperar as listas paginadas
+// endpoint para recuperar as listas paginadas 
 router.get('/', async function(req, res) {
     var page = req.query.page || 1;
     var itemsPerPage = req.query.itemsPage || 5;
+    var idQuadro = req.query.idQuadro;
 
     var db = await models.connect();
-    var queryCount = db.Lista.find({});
+
+    var quadro = db.Quadro.findById(idQuadro);
+
+    var queryCount = db.Lista.find({ _id: { $in: quadro.listas } });
     var totalItems = await queryCount.count();
 
     var queryList = db.Lista
-        .find({})
+        .find({ _id: { $in: quadro.listas }})
         .limit(itemsPerPage)
         .skip(itemsPerPage * (page - 1));   
     
@@ -33,7 +37,7 @@ router.get('/:id', async function(req, res) {
 router.post('/', async function(req, res) {
     var db = await models.connect();
     var titulo = req.body.titulo;
-    var idQuadro = req.headers.quadro;
+    var idQuadro = req.query.quadro;
 
     var quadro = await db.Quadro.findById(idQuadro);
 
@@ -52,7 +56,7 @@ router.post('/', async function(req, res) {
 // endpoint para atualizar uma lista
 router.put('/:id', async function(req, res) {
     var db = await models.connect();
-    var lista = await db.Quadro.Lista.findById(req.params.id);
+    var lista = await db.Lista.findById(req.params.id);
 
     if (!lista) {
         res.json({ message: 'Lista não encontrada!' });
@@ -68,14 +72,14 @@ router.put('/:id', async function(req, res) {
 // endpoint para deletar uma lista
 router.delete('/:id', async function(req, res) {
     var db = await models.connect();
-    var lista = await db.Quadro.Lista.findById(req.params.id);
+    var lista = await db.Lista.findById(req.params.id);
 
     if (!lista) {
         res.json({ message: 'Lista não encontrada!' });
         return;
     }
 
-    await lista.remove();
+    await lista.deleteOne();
 
     return res.json({ message: 'Lista deletada com sucesso!' });
 });

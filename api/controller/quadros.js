@@ -8,7 +8,10 @@ const auth = require('../auth/auth.js');
 // endpoint para recuperar os quadros paginados
 router.get('/', async function(req, res) {
 
-    if (!validaToken(req, res)) {
+    var claims = getClaims(req, res);
+    console.log("🚀 ~ file: quadros.js:12 ~ router.get ~ claims:", claims)
+
+    if (claims === null) {
         return res.status(401).json({ message: 'Acesso não autorizado.' });
     }    
 
@@ -19,12 +22,13 @@ router.get('/', async function(req, res) {
     var db = await models.connect();
     const regex = new RegExp(filter, "i");
 
-    var queryCount = db.Quadro.find({  });
-
-    var totalItems = await queryCount.count();
+    var usuario = await db.Usuario.findOne({ email: claims.email });    
+    
+    // var queryCount = await db.Quadro.find({ _id: { $in: usuario.quadros } })
+    // var totalItems = await queryCount.count();
 
     var queryList = db.Quadro
-        .find({ })
+        .find({ _id: { $in: usuario.quadros } })
         .limit(itemsPerPage)
         .skip(itemsPerPage * (page-1));
 
@@ -34,15 +38,15 @@ router.get('/', async function(req, res) {
         queryList = queryList.sort([[sortField, sortDesc]]);
     }
 
-    var items = await queryList.exec();
-    res.json({ items, totalItems });    
+    var quadros = await queryList.exec();
+    res.json({ quadros });    
 });
 
 
 // endpoint para recuperar um quadro
 router.get('/:id', async function(req, res) {
 
-    if (!validaToken(req, res)) {
+    if (!getClaims(req, res)) {
         return res.status(401).json({ message: 'Acesso não autorizado.' });
     }
 
@@ -87,7 +91,7 @@ router.post('/', async function(req, res) {
 // endpoint para atualizar um quadro
 router.put('/:id', async function(req, res) {
 
-    if (!validaToken(req, res)) {
+    if (!getClaims(req, res)) {
         return res.status(401).json({ message: 'Acesso não autorizado.' });
     }
 
@@ -112,7 +116,7 @@ router.put('/:id', async function(req, res) {
 // endpoint para deletar um quadro
 router.delete('/:id', async function(req, res) {
 
-    if (!validaToken(req, res)) {
+    if (!getClaims(req, res)) {
         return res.status(401).json({ message: 'Acesso não autorizado.' });
     }
 
@@ -132,15 +136,15 @@ router.delete('/:id', async function(req, res) {
 
 //  FUNÇÕES AUXILIARES
 // Função para validar o token de acesso
-function validaToken(req, res) {
+function getClaims(req, res) {
     
     var claims = auth.verifyToken(req, res);
 
     if (!claims) {
-        return false;
+        return null;
     }
 
-    return true;
+    return claims;
 };
 
 module.exports = router;

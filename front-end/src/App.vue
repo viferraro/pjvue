@@ -1,279 +1,76 @@
 <template>
-  <v-app id="inspire">
-    <v-app-bar flat>
-      <v-container class="fill-height d-flex align-center">
-        <v-img   max-height="85"
-        max-width="85" src="./assets/treco.png" class="my-3" contain></v-img>
-        <v-avatar class="me-10 ms-4" color="grey-darken-1" size="32"></v-avatar>
+  <v-app>
+    <v-navigation-drawer app v-model="drawer">
+        <v-list nav>
+            <v-list-item-group active-class="deep-green--text text--accent-4">
+                <v-list-item>
+                    <!-- <v-list-item-title @click="listaReceitas">Receitas</v-list-item-title> -->
+                    <v-list-item-title>Quadros</v-list-item-title>
+                </v-list-item>
+            </v-list-item-group>
+        </v-list>
+    </v-navigation-drawer>
+    
+    <v-app-bar app color="blue-grey" dark>
+        <v-app-bar-nav-icon @click.stop="toggleDrawer" v-if="$root.credentials"></v-app-bar-nav-icon>
+        <v-container class="d-flex align-center ">
+          <v-img max-width="3%" src="./assets/treco.png" class="my-3" contain></v-img>
+          TaskVerse
+          <v-avatar class="me-10 ms-4" color="grey-darken-1" size="32"></v-avatar>
+    
+          <v-spacer></v-spacer>
 
-        <v-btn v-for="link in links" :key="link" variant="text">
-          {{ link }}
-        </v-btn>
-
-        <v-spacer></v-spacer>
-
-        <v-responsive max-width="260">
-          <v-text-field density="compact" hide-details variant="solo"></v-text-field>
-        </v-responsive>
-      </v-container>
+          <span v-if="$root.credentials">
+            Olá, {{$root.credentials.nome}}.
+            <router-link :to="{ name: 'change-password' }" replace>
+              <v-btn icon><v-icon>mdi-lock-reset</v-icon></v-btn>
+            </router-link>          
+            <v-btn icon @click="logout"><v-icon>mdi-logout</v-icon></v-btn>
+          </span>
+          
+        </v-container>
     </v-app-bar>
-
-    <v-main class="bg-grey-lighten-3bg">
-      <v-container>
-        <v-row>
-          <v-col cols="2">
-            <v-sheet :rounded=true>
-              <v-list :rounded=true>
-                <v-list-item v-for="n in 2" :key="n" link>
-                  <v-list-item-title>
-                    List Item {{ n }}
-                  </v-list-item-title>
-                </v-list-item>
-
-                <v-divider class="my-2"></v-divider>
-
-                <v-list-item link color="grey-lighten-4">
-                  <v-list-item-title>
-                    Refresh
-                  </v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-sheet>
-          </v-col>
-
-          <v-col>
-            <v-sheet min-height="70vh" :rounded=true>
-              <v-card max-width="200" class="mx-auto">
-
-
-                <v-app-bar dark color="blue-grey darken-2">
-                  <v-toolbar-title>Vivian</v-toolbar-title>
-
-                  <v-spacer></v-spacer>
-
-                  <v-btn class="ma-2" color="black">
-                    <v-icon end icon="mdi-plus" x-small>Tarefa</v-icon>
-                    <v-icon small>mdi-plus-circle</v-icon>
-                  </v-btn>
-                </v-app-bar>
-
-                <v-container cols="12">
-                  <v-row dense>
-                    <v-col cols="12">
-                      <v-card color="#385F73" theme="dark">
-                        <v-card-title class="text-h5">
-                          Tarefa 1
-                        </v-card-title>
-
-                        <v-card-subtitle>Terminar a leitura do livro </v-card-subtitle>
-
-                        <v-card-actions>
-                          <v-btn variant="text">
-                            Concluída
-                          </v-btn>
-                        </v-card-actions>
-                      </v-card>
-                    </v-col>
-
-                    <v-col cols="12">
-                      <v-card color="#385F73" theme="dark">
-                        <v-card-title class="text-h5">
-                          Tarefa 2
-                        </v-card-title>
-
-                        <v-card-subtitle>Editar o código</v-card-subtitle>
-
-                        <v-card-actions>
-                          <v-btn variant="text">
-                            Concluída
-                          </v-btn>
-                        </v-card-actions>
-                      </v-card>
-                    </v-col>
-
-                    <v-col cols="12">
-                      <v-card color="#385F73" theme="dark">
-                        <v-card-title class="text-h5">
-                          Tarefa 3
-                        </v-card-title>
-
-                        <v-card-subtitle>Escrever o artigo </v-card-subtitle>
-
-                        <v-card-actions>
-                          <v-btn variant="text">
-                            Concluída
-                          </v-btn>
-                        </v-card-actions>
-                      </v-card>
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </v-card>
-            </v-sheet>
-          </v-col>
-          <v-col>
-            <v-sheet min-height="70vh" :rounded=true>
-              <v-card max-width="200" class="mx-auto">
-
-
-                <v-app-bar dark color="blue-grey darken-2">
-                  <v-toolbar-title>Vivian</v-toolbar-title>
-
-                  <v-spacer></v-spacer>
-
-                  <v-btn class="ma-2" color="black">
-                    <v-icon end icon="mdi-plus" x-small>Tarefa</v-icon>
-                    <v-icon small>mdi-plus-circle</v-icon>
-                  </v-btn>
-                </v-app-bar>
-
-                <v-container cols="12">
-                  <v-row dense>
-                    <v-col cols="12">
-                      <v-card color="#385F73" theme="dark">
-                        <v-card-title class="text-h5">
-                          Tarefa 1
-                        </v-card-title>
-
-                        <v-card-subtitle>Terminar a leitura do livro </v-card-subtitle>
-
-                        <v-card-actions>
-                          <v-btn variant="text">
-                            Concluída
-                          </v-btn>
-                        </v-card-actions>
-                      </v-card>
-                    </v-col>
-
-                    <v-col cols="12">
-                      <v-card color="#385F73" theme="dark">
-                        <v-card-title class="text-h5">
-                          Tarefa 2
-                        </v-card-title>
-
-                        <v-card-subtitle>Editar o código</v-card-subtitle>
-
-                        <v-card-actions>
-                          <v-btn variant="text">
-                            Concluída
-                          </v-btn>
-                        </v-card-actions>
-                      </v-card>
-                    </v-col>
-
-                    <v-col cols="12">
-                      <v-card color="#385F73" theme="dark">
-                        <v-card-title class="text-h5">
-                          Tarefa 3
-                        </v-card-title>
-
-                        <v-card-subtitle>Escrever o artigo </v-card-subtitle>
-
-                        <v-card-actions>
-                          <v-btn variant="text">
-                            Concluída
-                          </v-btn>
-                        </v-card-actions>
-                      </v-card>
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </v-card>
-            </v-sheet>
-          </v-col>
-          <v-col>
-            <v-sheet min-height="70vh" :rounded=true>
-              <v-card max-width="200" class="mx-auto">
-
-                <v-app-bar dark color="blue-grey darken-2">
-                  <v-toolbar-title>Vivian</v-toolbar-title>
-
-                  <v-spacer></v-spacer>
-
-                  <v-btn class="ma-2" color="black">
-                    <v-icon end icon="mdi-plus" x-small>Tarefa</v-icon>
-                    <v-icon small>mdi-plus-circle</v-icon>
-                  </v-btn>
-                </v-app-bar>
-
-                <v-container cols="12">
-                  <v-row dense>
-                    <v-col cols="12">
-                      <v-card color="#385F73" theme="dark">
-                        <v-card-title class="text-h5">
-                          Tarefa 1
-                        </v-card-title>
-
-                        <v-card-subtitle>Terminar a leitura do livro </v-card-subtitle>
-
-                        <v-card-actions>
-                          <v-btn variant="text">
-                            Concluída
-                          </v-btn>
-                        </v-card-actions>
-                      </v-card>
-                    </v-col>
-
-                    <v-col cols="12">
-                      <v-card color="#385F73" theme="dark">
-                        <v-card-title class="text-h5">
-                          Tarefa 2
-                        </v-card-title>
-
-                        <v-card-subtitle>Editar o código</v-card-subtitle>
-
-                        <v-card-actions>
-                          <v-btn variant="text">
-                            Concluída
-                          </v-btn>
-                        </v-card-actions>
-                      </v-card>
-                    </v-col>
-
-                    <v-col cols="12">
-                      <v-card color="#385F73" theme="dark">
-                        <v-card-title class="text-h5">
-                          Tarefa 3
-                        </v-card-title>
-
-                        <v-card-subtitle>Escrever o artigo </v-card-subtitle>
-
-                        <v-card-actions>
-                          <v-btn variant="text">
-                            Concluída
-                          </v-btn>
-                        </v-card-actions>
-                      </v-card>
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </v-card>
-            </v-sheet>
-          </v-col>
-        </v-row>
-      </v-container>
+  
+    <v-main>
+      <router-view></router-view>
     </v-main>
+  
+    <v-footer app>
+        @TaskVerse @2023
+    </v-footer>
   </v-app>
 </template>
 
 <script>
 export default {
+  name: 'App',
+
   data: () => ({
-    links: [
-      'Dashboard',
-      'Messages',
-      'Profile',
-      'Updates',
-    ],
-
-    usuarios: [
-      'Vivian',
-      'Eric',
-      'João',
-      'Pedro',
-    ],
-
-    // logoImagem: require('@/assets/trecoTP.jpeg'),
+    drawer: false
   }),
-}
+
+  methods: {
+    toggleDrawer: function() {
+        this.drawer = !this.drawer;
+    },
+
+    logout: function() {
+      this.$root.credentials = null;
+      this.$router.replace('/');
+    },
+
+    // listaReceitas: function() {
+    //   this.$router.replace('/receitas');      
+    // }
+  },
+};
 </script>
+
+<style>
+p.error {
+    color: white !important;
+}
+.v-data-table__wrapper {
+    border-top: 1px solid #ccc;
+}
+</style>
