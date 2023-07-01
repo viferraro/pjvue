@@ -9,7 +9,8 @@ import Login from './components/Usuario/FormLogin.vue'
 import Home from './components/HomePage.vue'
 
 /* Páginas de Quadros */
-import Quadro from './components/Quadros/FormQuadros.vue'
+import Quadro from './components/Quadros/HomeQuadros.vue'
+import QuadroForm from './components/Quadros/FormQuadros.vue'
 
 /* Configuracao do router */
 Vue.config.productionTip = false
@@ -29,10 +30,15 @@ const router = new Router({
       component: Login
     },
     {
-      path: '/quadro',
+      path: '/quadros',
       name: 'quadro',
       component: Quadro
-    }
+    },
+    {
+      path: '/quadros/novo',
+      name: 'quadroForm',
+      component: QuadroForm
+    },
   ]
 })
 

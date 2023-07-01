@@ -51,7 +51,7 @@
           axios.post(this.$root.config.urlBack + "/usuarios/login", this.form)
             .then(response => {
               this.$root.credentials = response.data.usuario;
-              this.$router.replace('/quadro');
+              this.$router.replace('/quadros');
             })
             .catch(error => {              
               console.log("🚀 ~ file: FormLogin.vue:61 ~ error:", error)

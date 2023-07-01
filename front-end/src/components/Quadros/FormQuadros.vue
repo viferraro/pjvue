@@ -1,158 +1,158 @@
 <template>
     <v-container>
-      <v-main class="bg-grey-lighten-3bg">
-        <!-- <p v-if="!$root.credentials">
-          <router-link class="link" :to="{ name: 'login' }">
-            <a class="btn btn-lg btn-success" href="#" role="button">Login</a>
-          </router-link>
-        </p> -->
-
+        <v-main>
         <v-container>
+            <v-row>
+            <v-col cols="12">
+                <v-sheet>
+                <v-row>
+                    <v-col cols="12">
+                    <v-card>
+                        <v-card-title>
+                        <h1>Novo Quadro</h1>
+                        </v-card-title>
+                        <v-card-text>
+                        <v-form>
+                            <v-text-field
+                              label="Nome do Quadro"
+                              required
+                            >
+                            </v-text-field>
+                            
+                            <v-row
+                              class="fill-height"
+                              align="center"
+                              justify="left"
+                            >
+                                <v-col
+                                  cols="12"
+                                  md="2"
+                                  align="center"
+                                >
+                                <v-text-field readonly hide-details solo placeholder="Cor de fundo">
+                                  <template v-slot:append>
+                                    <v-menu v-model="menuFundo" top nudge-bottom="105" nudge-left="16" :close-on-content-click="false">
+                                      <template v-slot:activator="{ on }">
+                                        <div :style="trocaEstiloFundo" v-on="on" />
+                                      </template>
+                                      <v-card>
+                                        <v-card-text class="pa-0">
+                                          <v-color-picker 
+                                            v-model="corFundo" 
+                                            flat
+                                            hide-canvas
+                                            hide-inputs
+                                            show-swatches
+                                          />
+                                        </v-card-text>
+                                      </v-card>
+                                    </v-menu>
+                                  </template>
+                                </v-text-field>                                   
+                                </v-col>
 
-          <!-- Inserindo um v-for para os dados dos itens -->
-          <v-row>
-            <v-col cols="2">
-              <v-sheet :rounded=true>
-                <v-list :rounded=true>
-                  <v-list-item v-for="n in 2" :key="n" link>
-                    <v-list-item-title>
-                      List Item {{ n }}
-                    </v-list-item-title>
-                  </v-list-item>
-  
-                  <v-divider class="my-2"></v-divider>
-  
-                  <v-list-item link color="grey-lighten-4">
-                    <v-list-item-title>
-                      Refresh
-                    </v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-sheet>
+                                <v-col
+                                  cols="12"
+                                  md="2"
+                                >
+                                <v-text-field readonly hide-details solo placeholder="Cor de texto" >
+                                  <template v-slot:append>
+                                    <v-menu v-model="menuTexto" top nudge-bottom="105" nudge-left="16" :close-on-content-click="false">
+                                      <template v-slot:activator="{ on }">
+                                        <div :style="trocaEstiloTexto" v-on="on" />
+                                      </template>
+                                      <v-card>
+                                        <v-card-text class="pa-0">
+                                          <v-color-picker 
+                                            v-model="corTexto" 
+                                            flat
+                                            hide-canvas
+                                            hide-inputs
+                                            show-swatches
+                                          />
+                                        </v-card-text>
+                                      </v-card>
+                                    </v-menu>
+                                  </template>
+                                </v-text-field>                                   
+                                </v-col>
+                                
+                                <v-col
+                                  cols="12"
+                                  md="2"
+                                >
+                                  <v-template>
+                                    <v-checkbox
+                                      v-model="editavel"
+                                      label="Editável"
+                                    ></v-checkbox>
+                                  </v-template>
+                                </v-col>
+
+                                <v-col
+                                  cols="12"
+                                  md="2"
+                                >
+                                  <v-template>
+                                    <v-checkbox
+                                      v-model="favorito"
+                                      label="Favorito"
+                                    ></v-checkbox>
+                                  </v-template>
+                                </v-col>
+                                
+                              </v-row>
+
+
+                            <v-btn color="primary">Salvar</v-btn>
+                        </v-form>
+                        </v-card-text>
+                    </v-card>
+                    </v-col>
+                </v-row>
+                </v-sheet>
             </v-col>
-  
-            <v-row justify="space-around">
-              <v-sheet v-for="item in items" :key="item._id" min-height="70vh" :rounded=true>
-                <v-card>
-                  <v-app-bar dark color="blue-grey darken-2">
-                    <v-toolbar-title>{{ item.nome }}</v-toolbar-title>
-  
-                    <v-spacer></v-spacer>
-  
-                    <v-btn class="ma-2" color="black">
-                      <v-icon end icon="mdi-plus" x-small>Tarefa</v-icon>
-                      <v-icon small>mdi-plus-circle</v-icon>
-                    </v-btn>
-  
-                  </v-app-bar>
-  
-                </v-card>
-                
-              </v-sheet>
             </v-row>
-          </v-row>
-          
-  
-          <!-- <v-row>
-            <v-col cols="2">
-              <v-sheet :rounded=true>
-                <v-list :rounded=true>
-                  <v-list-item v-for="n in 2" :key="n" link>
-                    <v-list-item-title>
-                      List Item {{ n }}
-                    </v-list-item-title>
-                  </v-list-item>
-  
-                  <v-divider class="my-2"></v-divider>
-  
-                  <v-list-item link color="grey-lighten-4">
-                    <v-list-item-title>
-                      Refresh
-                    </v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-sheet>
-            </v-col>
-  
-            <v-row justify="space-around">
-              <v-sheet v-for="usuario in usuarios" :key="usuario.id" min-height="70vh" :rounded=true>
-                <v-card max-width="200" class="mx-auto">
-  
-                  <v-app-bar dark color="blue-grey darken-2">
-                      <v-toolbar-title>{{ usuario }}</v-toolbar-title>
-  
-                    <v-spacer></v-spacer>
-  
-                    <v-btn class="ma-2" color="black">
-                      <v-icon end icon="mdi-plus" x-small>Tarefa</v-icon>
-                      <v-icon small>mdi-plus-circle</v-icon>
-                    </v-btn>
-  
-                  </v-app-bar>
-  
-                  
-                  <v-list-item-group>
-                    <v-list-item v-for="item in items" :key="item.id">
-                      <v-list-item-content>
-                        <v-list-item-title>{{ item }}</v-list-item-title>
-                      </v-list-item-content>
-  
-                      <v-list-item-action>
-                        <v-icon color="grey lighten-1">mdi-drag</v-icon>
-                      </v-list-item-action>
-                    </v-list-item>
-                  </v-list-item-group>
-                  
-                </v-card>
-              </v-sheet>
-            </v-row>
-          </v-row> -->
         </v-container>
-      </v-main>
+        </v-main>
     </v-container>
-  </template>
-  
-  <script>
+</template>
 
-    import axios from 'axios';
-
+<script>
     export default {
-      data() {
-        return {
-            items: [],
-            error: "",
-
-            httpOptions: {
-                baseURL: this.$root.config.urlBack,
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + this.$root.credentials.token
-                }
-            },
-        }
+      data: () => ({
+        corFundo: '#1976D2FF',
+        corTexto: '#000000',        
+        menuFundo: false,
+        menuTexto: false,
+        editavel: false,
+        favorito: false,
+      }),
+      computed: {
+        trocaEstiloFundo() {
+          const { corFundo: color, menuFundo: menu } = this
+          console.log(color)
+          return {  
+            backgroundColor: color,
+            cursor: 'pointer',
+            height: '30px',
+            width: '30px',
+            borderRadius: menu ? '50%' : '4px',
+            transition: 'border-radius 200ms ease-in-out'
+          }
+        },
+        trocaEstiloTexto() {
+          const { corTexto: color, menuTexto: menu } = this
+          console.log(color)
+          return {
+            backgroundColor: color,
+            cursor: 'pointer',
+            height: '30px',
+            width: '30px',
+            borderRadius: menu ? '50%' : '4px',
+            transition: 'border-radius 200ms ease-in-out'
+          }
+        },
       },
-
-      methods: {
-        retornaQuadros: function() {
-          axios.get(this.httpOptions.baseURL +'/quadros', this.httpOptions)
-          .then(response => {
-            console.log(this.httpOptions.baseURL +'/quadros');
-            console.log(response.data());
-            this.items = response.data.quadros;
-          })
-          .catch(error => {
-            this.error = error;
-          })
-        }
-      },
-
-      mounted() {
-        console.log(this.$root.credentials);
-        this.retornaQuadros();
-      }
-    }
-
-
-  
-  </script>
+    }        
+</script>

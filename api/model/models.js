@@ -27,6 +27,8 @@ var Lista = null;
 //
 async function connect() {
     if(!connection){
+        
+        console.log("🚀 ~ file: models.js:32 ~ connect ~ config.database.connectionString:", config.database.connectionString)
         await mongoose.connect(config.database.connectionString);
         connection = mongoose.connection;
         connection.on('error', console.error.bind(console, 'Erro na conexão com o MongoDB:'));
@@ -64,7 +66,7 @@ async function connect() {
             }]
         }
 
-        Usuario = mongoose.model('Usuario', usuarioSchema, 'usuarios');
+        Usuario = mongoose.model('usuarios', usuarioSchema);
         Quadro = mongoose.model('Quadro', quadroSchema, 'quadros');
         Lista = mongoose.model('Lista', listaSchema, 'listas');
     }
