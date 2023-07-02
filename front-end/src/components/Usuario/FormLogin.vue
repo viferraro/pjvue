@@ -25,7 +25,7 @@
         </div>
         
         <div class="mt-2">
-          <router-link :to="{ name: 'create-account' }" replace>
+          <router-link :to="{ name: 'registro' }" replace>
             Criar nova conta
           </router-link>
         </div>

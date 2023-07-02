@@ -1,11 +1,10 @@
 <template>
   <v-app>
-    <v-navigation-drawer app v-model="drawer">
+    <v-navigation-drawer v-if="$root.credentials" app v-model="drawer">
         <v-list nav>
             <v-list-item-group active-class="deep-green--text text--accent-4">
                 <v-list-item>
-                    <!-- <v-list-item-title @click="listaReceitas">Receitas</v-list-item-title> -->
-                    <v-list-item-title>Quadros</v-list-item-title>
+                    <v-list-item-title @click="homeQuadros">Quadros</v-list-item-title>
                 </v-list-item>
             </v-list-item-group>
         </v-list>
@@ -59,9 +58,9 @@ export default {
       this.$router.replace('/');
     },
 
-    // listaReceitas: function() {
-    //   this.$router.replace('/receitas');      
-    // }
+    homeQuadros: function() {
+      this.$router.replace('/quadros');      
+    }
   },
 };
 </script>

@@ -4,8 +4,9 @@ import vuetify from './plugins/vuetify'
 import Router from 'vue-router'
 // import '../src/assets/.treco.png'
 
-/* Páginas de login e homepage */
+/* Páginas de login, Registro e homepage */
 import Login from './components/Usuario/FormLogin.vue'
+import Registro from './components/Usuario/FormRegistro.vue'
 import Home from './components/HomePage.vue'
 
 /* Páginas de Quadros */
@@ -19,15 +20,20 @@ Vue.use(Router)
 const router = new Router({
   mode: 'history',
   routes: [
-   {
-     path: '/',
-     name: 'home',
-     component: Home
-   },
+    {
+      path: '/',
+      name: 'home',
+      component: Home
+    },
     {
       path: '/login',
       name: 'login',
       component: Login
+    },
+    {
+        path: '/registro',
+        name: 'registro',
+        component: Registro
     },
     {
       path: '/quadros',

@@ -2,7 +2,7 @@
     <v-container>
         <v-main>
         <v-container>
-            <v-row>
+          <v-row>
             <v-col cols="6">
                 <v-sheet>
                 <v-row>
