@@ -58,9 +58,12 @@ router.get('/:id', async function(req, res) {
 // endpoint para criar um quadro
 router.post('/', async function(req, res) {
 
-    // if (!validaToken(req, res)) {
-    //     return res.status(401).json({ message: 'Acesso não autorizado.' });
-    // }
+    var claims = getClaims(req, res);
+    console.log("🚀 ~ file: quadros.js:12 ~ router.get ~ claims:", claims)
+
+    if (claims === null) {
+        return res.status(401).json({ message: 'Acesso não autorizado.' });
+    }
 
     var db = await models.connect();
     var titulo = req.body.titulo;
@@ -78,7 +81,7 @@ router.post('/', async function(req, res) {
     });
 
     // Adiciona o quadro ao usuario
-    var usuario = await db.Usuario.findOne({ email: req.body.email })
+    var usuario = await db.Usuario.findOne({ email: claims.email });
     usuario.quadros.push(quadro);    
     await usuario.save();
     

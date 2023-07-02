@@ -30,30 +30,65 @@
                 </v-list>
               </v-sheet>
             </v-col>
-  
             
-            <v-row v-if="items.length > 0" justify="space-around">
-              <v-sheet v-for="item in items" :key="item._id" min-height="70vh" :rounded=true>
-                <v-card>
-                  <v-app-bar dark color="blue-grey darken-2">
-                    <v-toolbar-title>{{ item.nome }}</v-toolbar-title>
-  
-                    <v-spacer></v-spacer>
-  
-                    <v-btn class="ma-2" color="black">
-                      <v-icon end icon="mdi-plus" x-small>Tarefa</v-icon>
-                      <v-icon small>mdi-plus-circle</v-icon>
-                    </v-btn>
-  
-                  </v-app-bar>
-  
-                </v-card>
-                
-              </v-sheet>
+            <v-row v-if="quadros.length > 0" justify="space-around">
+              <v-col v-for="quadro in quadros" :key="quadro.id" cols="4">
+                <v-sheet
+                class="mx-auto"
+                max-width="344"
+                tile
+              >
+                <v-row
+                  class="fill-height"
+                  align="center"
+                  justify="center"
+                >
+                  <v-col cols="12">
+                    <v-card
+                      class="mx-auto"
+                      max-width="500"
+                      elevation="15"
+                      :style="{ backgroundColor: quadro.corFundo}"
+                    >
+                    <v-list-item three-line>
+                      <v-list-item-content>
+                          <v-row>    
+                            <v-col
+                              cols="10"
+                              justify="space-between"
+                            >                      
+                              <v-list-item-title 
+                                class="headline mb-1"
+                                :style="{ color: quadro.corTexto }"
+                              >
+                                {{ quadro.titulo }}
+                              </v-list-item-title>
+                            </v-col>                      
+                            <v-icon v-if="quadro.favorito" color="warning">mdi-star</v-icon> 
+                          </v-row>
+                          <v-list v-for="itemLista in 5" :key="itemLista" :style="{ backgroundColor: corAjustada(quadro.corFundo) }">
+                            <v-list-item>
+                              <v-list-item-content>
+                                <v-list-item-title
+                                  :style="{ color: quadro.corTexto }"
+                                >Lista {{ itemLista }}
+                              </v-list-item-title>
+                              </v-list-item-content>
+                            </v-list-item>
+                          </v-list>
+                        </v-list-item-content>
+                      </v-list-item>
+                    </v-card>
+                  </v-col>
+                </v-row>
+                </v-sheet>
+              </v-col>
             </v-row>
 
-            <h1 v-else>Não há quadros cadastrados</h1>
+            <v-row v-else>
+              <h1>Não há quadros cadastrados</h1>
           </v-row>
+        </v-row>
           
   
           <!-- <v-row>
@@ -122,7 +157,9 @@
     export default {
       data() {
         return {
-            items: [],
+            quadros: [],
+
+            lightenAmount: 0.3,
             error: "",
 
             httpOptions: {
@@ -137,14 +174,40 @@
       },
 
       methods: {
+        corAjustada(color) {
+          var amount = this.lightenAmount;
+          // Remove o caractere '#' da cor hexadecimal
+          const hexColor = color.replace('#', '');
+
+          // Converte a cor hexadecimal para os valores de RGB
+          const red = parseInt(hexColor.substr(0, 2), 16);
+          const green = parseInt(hexColor.substr(2, 2), 16);
+          const blue = parseInt(hexColor.substr(4, 2), 16);
+
+          // Calcula a cor clareada com base no valor fornecido
+          const lightenedRed = Math.round(red + (255 - red) * amount);
+          const lightenedGreen = Math.round(green + (255 - green) * amount);
+          const lightenedBlue = Math.round(blue + (255 - blue) * amount);
+
+          // Converte os valores de RGB de volta para a cor hexadecimal
+          const lightenedHex = '#' +
+            lightenedRed.toString(16).padStart(2, '0') +
+            lightenedGreen.toString(16).padStart(2, '0') +
+            lightenedBlue.toString(16).padStart(2, '0');
+
+          // Retorna a cor clareada no formato hexadecimal
+          return lightenedHex;
+        },
+
         retornaQuadros: function() {
+          console.log("Retornando quadros");
           axios.get(this.httpOptions.baseURL +'/quadros', this.httpOptions)
-          .then(response => {
-            console.log(this.httpOptions.baseURL +'/quadros');
-            console.log(response.data());
-            this.items = response.data.quadros;
+          .then(response => { 
+            console.log(response.data);
+            this.quadros = response.data.quadros;
           })
           .catch(error => {
+            console.log(error);
             this.error = error;
           })
         },
