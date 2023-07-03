@@ -4,46 +4,59 @@ var router = express.Router();
 const config = require('../config/config.js');
 const models = require('../model/models.js');
 
-// endpoint para recuperar as listas paginadas
-router.get('/listas', async function(req, res) {
-    var page = req.params.page || 1;
-    var itemsPerPage = req.params.itemsPerPage || 5;
+// endpoint para recuperar as listas paginadas 
+router.get('/', async function(req, res) {
+    var page = req.query.page || 1;
+    var itemsPerPage = req.query.itemsPage || 5;
+    var idQuadro = req.query.idQuadro;
 
     var db = await models.connect();
-    var queryCount = db.Quadro.Lista.find({});
-    var totalItems = queryCount.count();
 
-    var queryList = db.Quadro.Lista.find({}).limit(itemsPerPage).skip(itemsPerPage * (page - 1));   
-    var items = queryList.exec();
+    var quadro = db.Quadro.findById(idQuadro);
 
-    res.json({ items: totalItems });
+    var queryCount = db.Lista.find({ _id: { $in: quadro.listas } });
+    var totalItems = await queryCount.count();
+
+    var queryList = db.Lista
+        .find({ _id: { $in: quadro.listas }})
+        .limit(itemsPerPage)
+        .skip(itemsPerPage * (page - 1));   
+    
+    var items = await queryList.exec();
+    res.json({ items, totalItems });  
 });
 
 // endpoint para recuperar uma lista
-router.get('/listas/:id', async function(req, res) {
+router.get('/:id', async function(req, res) {
     var db = await models.connect();
     var lista = await db.Quadro.Lista.findById(req.params.id);
     res.json(lista);
 });
 
 // endpoint para criar uma lista
-router.post('/listas', async function(req, res) {
+router.post('/', async function(req, res) {
     var db = await models.connect();
     var titulo = req.body.titulo;
-    var idQuadro = req.body.idQuadro;
+    var idQuadro = req.query.quadro;
 
-    var lista = new db.Quadro.Lista({
+    var quadro = await db.Quadro.findById(idQuadro);
+
+    var lista = new db.Lista({
         titulo: titulo
     });
+
+    quadro.listas.push(lista);
+    await quadro.save();
+
     await lista.save();
 
     return res.json({ message: 'Lista criada com sucesso com o id ' + lista._id + ' !' });
 });
 
 // endpoint para atualizar uma lista
-router.put('/listas/:id', async function(req, res) {
+router.put('/:id', async function(req, res) {
     var db = await models.connect();
-    var lista = await db.Quadro.Lista.findById(req.params.id);
+    var lista = await db.Lista.findById(req.params.id);
 
     if (!lista) {
         res.json({ message: 'Lista não encontrada!' });
@@ -57,16 +70,16 @@ router.put('/listas/:id', async function(req, res) {
 });
 
 // endpoint para deletar uma lista
-router.delete('/listas/:id', async function(req, res) {
+router.delete('/:id', async function(req, res) {
     var db = await models.connect();
-    var lista = await db.Quadro.Lista.findById(req.params.id);
+    var lista = await db.Lista.findById(req.params.id);
 
     if (!lista) {
         res.json({ message: 'Lista não encontrada!' });
         return;
     }
 
-    await lista.remove();
+    await lista.deleteOne();
 
     return res.json({ message: 'Lista deletada com sucesso!' });
 });

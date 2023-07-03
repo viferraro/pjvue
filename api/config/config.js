@@ -3,7 +3,7 @@ require('dotenv').config();
 
 module.exports = {
     database: {
-        connectionString: 'mongodb://127.0.0.1/pjvue'
+        connectionString: process.env.CONNECTION_STRING_ATLAS
     },
     
     auth: {
@@ -15,7 +15,7 @@ module.exports = {
     },
 
     sendGrid: {
-        apiKey: process.env.SENDGRID_API_KEY,
+        apiKey: '',
         email: 'ericleal26@yahoo.com.br'
     }
 
