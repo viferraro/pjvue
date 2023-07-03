@@ -93,7 +93,8 @@
                   Nenhum quadro encontrado.
                 </v-alert>
               </v-col>
-          </v-row>          
+          </v-row>   
+          </v-row>      
         </v-container>
       </v-main>
     </v-container>
