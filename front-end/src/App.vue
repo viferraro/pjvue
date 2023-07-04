@@ -10,11 +10,10 @@
         </v-list>
     </v-navigation-drawer>
     
-    <v-app-bar app color="blue-grey" dark>
+    <v-app-bar app color="#BED9D9">
         <v-app-bar-nav-icon @click.stop="toggleDrawer" v-if="$root.credentials"></v-app-bar-nav-icon>
         <v-container class="d-flex align-center ">
-          <v-img max-width="3%" src="./assets/treco.png" class="my-3" contain></v-img>
-          TaskVerse
+          <v-img max-width="15%" src="./assets/Imagens/logo-nome.png" class="my-3" contain></v-img>
           <v-avatar class="me-10 ms-4" color="grey-darken-1" size="32"></v-avatar>
     
           <v-spacer></v-spacer>

@@ -4,6 +4,7 @@ var router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
+const sg = require('@sendgrid/mail');
 const crypto = require('crypto')
 
 const mongoose = require('mongoose');
@@ -194,6 +195,7 @@ router.post('/login', async function (req, res) {
 // endpoint para enviar token por esquecimento de senha
 router.post('/esqueci', async function (req, res) {
     var email = req.body.email;
+    sg.setApiKey(config.sendGrid.apiKey);
 
     if (!email) {
         res.status(400).json({ erro: 'Dados incompletos' });
@@ -219,35 +221,40 @@ router.post('/esqueci', async function (req, res) {
     await usuario.save();
 
     let transporter = nodemailer.createTransport({
-        host: 'smtp.sendgrid.net',
-        port: 587,
+        service: 'SendGrid',
         auth: {
-            user: "apikey",
+            user: config.sendGrid.email,
             pass: config.sendGrid.apiKey
         }
     })
 
-    var link = config.frontend.hostname + "/login/reset?token=" + usuario.tokenSenha + "&email=" + usuario.email;
-    var contents = "Se você solicitou uma recuperação de senha, clique <a href='" + link + "'>aqui</a>.<br>";
-    contents += "Se não tiver pedido a recuperação de senha, relaxa. Só tentaram te dar um golpe!";
+    var link = config.frontend.hostname + "/login/reset?token=" + usuario.token + "&email=" + usuario.email;
+    // var contents = "Se você solicitou uma recuperação de senha, clique <a href='" + link + "'>aqui</a>.<br>";
+    // contents += "Se não tiver pedido a recuperação de senha, relaxa. Só tentaram te dar um golpe!";
+    // contents += "<br><br>Atenciosamente,<br>Equipe TaskVerse</br><br";
 
-    var mailOptions = {
-        from: config.sendGrid.email,
+    var email = {
+        from: {
+            name: "Equipe TaskVerse",
+            email: config.sendGrid.fromEmail
+        },
         to: usuario.email,
         subject: "Recuperação de senha",
-        text: contents,
-        html: contents
+        templateId: config.sendGrid.templateId,
+        dynamicTemplateData : {
+            button_link: link
+        }
+        // html: contents
     };
 
-    transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-            console.log(error);
-        } else {
-            console.log('Email enviado: ' + info.response);
+    sg.send(email, function(err, json){
+        if(err){
+            res.json(err);
+        }else{
+            res.json({ message: "OK" });
         }
-    });
-
-    res.json({ message: "OK" });
+    }
+    );
 });
 
 // endpoint para recuperação de senha
