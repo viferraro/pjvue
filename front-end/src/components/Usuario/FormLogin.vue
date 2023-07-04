@@ -19,7 +19,7 @@
         </v-form>
   
         <div class="mt-12">
-          <router-link :to="{ name: 'forgot-password' }" replace>
+          <router-link :to="{ name: 'esqueci' }" replace>
             Recuperar a minha senha
           </router-link>
         </div>
