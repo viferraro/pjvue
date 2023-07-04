@@ -16,7 +16,7 @@ module.exports = {
 
     sendGrid: {
         apiKey: '',
-        email: 'ericleal26@yahoo.com.br'
+        email: 'dswequipetaskverse@gmail.com'
     }
 
 }
