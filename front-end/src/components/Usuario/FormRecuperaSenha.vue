@@ -10,7 +10,7 @@
                     <v-text-field v-model="form.email" label="Entre com o seu e-mail"></v-text-field>
                 </div>
 
-                <v-btn type="submit" class="primary">Envia</v-btn>
+                <v-btn type="submit" class="primary">Enviar</v-btn>
             </v-form>
 
 
@@ -36,6 +36,7 @@ export default {
             axios.post(this.$root.config.urlBack + "/usuarios/esqueci", this.form)
                 .then(response => {
                     this.$root.credentials = response.data;
+                    this.$router.replace('/login');
                 })
                 .catch(error => {
                     console.log("🚀 ~ file: FormLogin.vue:61 ~ error:", error)
