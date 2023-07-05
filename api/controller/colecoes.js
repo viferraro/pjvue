@@ -69,7 +69,7 @@ router.post('/', async function(req, res) {
         titulo: titulo,
     });
 
-    // Adiciona o quadro ao usuario
+    // Adiciona a colecao ao usuario
     var usuario = await db.Usuario.findOne({ email: claims.email });
     usuario.colecoes.push(colecao);
     await usuario.save();

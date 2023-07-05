@@ -6,6 +6,9 @@
                 <v-list-item>
                     <v-list-item-title @click="homeQuadros">Quadros</v-list-item-title>
                 </v-list-item>
+                <v-list-item>
+                  <v-list-item-title @click="homeColecao">Coleção</v-list-item-title>
+                </v-list-item>
             </v-list-item-group>
         </v-list>
     </v-navigation-drawer>
@@ -59,7 +62,11 @@ export default {
 
     homeQuadros: function() {
       this.$router.replace('/quadros');      
-    }
+    },
+
+    homeColecao: function() {
+      this.$router.replace('/colecoes');
+    },
   },
 };
 </script>

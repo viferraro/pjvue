@@ -16,6 +16,10 @@ import novaSenha from './components/Usuario/FormNovaSenha.vue'
 import Quadro from './components/Quadros/HomeQuadros.vue'
 import QuadroForm from './components/Quadros/FormQuadros.vue'
 
+/* Páginas de Colecoes */
+import Colecao from './components/Colecao/HomeColecoes.vue'
+import ColecaoForm from './components/Colecao/FormColecoes.vue'
+
 /* Configuracao do router */
 Vue.config.productionTip = false
 Vue.use(Router)
@@ -52,6 +56,16 @@ const router = new Router({
       path: '/quadros/novo',
       name: 'quadroForm',
       component: QuadroForm
+    },
+    {
+      path: '/colecoes/novo',
+      name: 'colecaoForm',
+      component: ColecaoForm
+    },
+    {
+      path: '/colecoes/',
+      name: 'colecao',
+      component: Colecao
     },
 
     {
