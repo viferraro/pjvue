@@ -151,6 +151,10 @@ export default {
 
     novoQuadro: function () {
       this.$router.replace("/quadros/novo")
+    },
+
+    editaQuadro: function () {
+      this.$router.replace("/quadros/editar")
     }
   },
 
