@@ -55,7 +55,7 @@ const router = new Router({
     },
 
     {
-      path: '/novaSenha',
+      path: '/login/reset',
       name: 'novaSenha',
       component: novaSenha
     },
