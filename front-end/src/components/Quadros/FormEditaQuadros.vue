@@ -9,13 +9,13 @@
                                 <v-col cols="12">
                                     <v-card>
                                         <v-card-title>
-                                            <h1>Novo Quadro</h1>
+                                            <h1>{{ nomeQuadro }}</h1>
                                         </v-card-title>
                                         <v-card-text>
                                             <v-row class="fill-height" align="center" justify="left">
                                                 <v-col cols="12">
                                                     <v-form>
-                                                        <v-text-field label="Nome do Quadro" required v-model="nomeQuadro">
+                                                        <v-text-field required v-bind:title="nomeQuadro">
                                                         </v-text-field>
 
                                                         <v-row>
@@ -25,8 +25,9 @@
                                                                     <template v-slot:append>
                                                                         <v-menu v-model="menuFundo" top nudge-bottom="105"
                                                                             nudge-left="16" :close-on-content-click="false">
-                                                                            <template v-slot:activator="{ on }">
-                                                                                <div :style="trocaEstiloFundo" v-on="on" />
+                                                                            <template>
+                                                                                <div
+                                                                                    :style="{ backgroundColor: corFundo }" />
                                                                             </template>
                                                                             <v-card>
                                                                                 <v-color-picker v-model="corFundo" flat
@@ -43,8 +44,8 @@
                                                                     <template v-slot:append>
                                                                         <v-menu v-model="menuTexto" top nudge-bottom="105"
                                                                             nudge-left="16" :close-on-content-click="false">
-                                                                            <template v-slot:activator="{ on }">
-                                                                                <div :style="trocaEstiloTexto" v-on="on" />
+                                                                            <template>
+                                                                                <div :style="{ color: corTexto }" />
                                                                             </template>
                                                                             <v-card>
                                                                                 <v-color-picker v-model="corTexto" flat
@@ -131,9 +132,11 @@ export default {
     data() {
 
         return {
-            nomeQuadro: '',
-            corFundo: '#4071ad',
-            corTexto: '#000000',
+            quadro: "",
+
+            nomeQuadro: this.quadro.titulo,
+            corFundo: this.quadro.corFundo,
+            corTexto: this.quadro.corTexto,
             editavel: false,
             favorito: false,
 
@@ -208,6 +211,19 @@ export default {
 
             // Retorna a cor clareada no formato hexadecimal
             return lightenedHex;
+        },
+        editaQuadro() {
+            this.quadro = "";
+            this.loading = true;
+            axios.get(this.httpOptions.baseURL + '/quadros', this.httpOptions)
+                .then(response => {
+                    this.loading = false;
+                    this.quadro = response.data;
+                })
+                .catch(error => {
+                    this.loading = false;
+                    this.error = error;
+                })
         },
         criaQuadro() {
             axios.post(this.httpOptions.baseURL + '/quadros', {
