@@ -45,7 +45,13 @@ async function connect() {
             tokenSenha: String,
             dataTokenSenha: Date,
             falhasLogin: { type: Number, default: 0 },
-            quadros: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Quadro' }]
+            quadros: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Quadro' }],
+            colecoes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Colecao' }]
+        }
+
+        var colecaoSchema = {
+            nome: String,
+            quadros: [{type: mongoose.Schema.Types.ObjectId,ref:'Quadro'}]
         }
 
         var quadroSchema = {
@@ -67,11 +73,12 @@ async function connect() {
         }
 
         Usuario = mongoose.model('usuarios', usuarioSchema);
+        Colecao = mongoose.model('Colecao', colecaoSchema,'colecoes');
         Quadro = mongoose.model('Quadro', quadroSchema, 'quadros');
         Lista = mongoose.model('Lista', listaSchema, 'listas');
     }
 
-    return { connection, Usuario, Quadro, Lista }    
+    return { connection, Usuario, Colecao, Quadro, Lista }
 }
 
 module.exports = { connect }

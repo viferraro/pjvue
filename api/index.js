@@ -12,11 +12,13 @@ var usuarios = require('./controller/usuarios.js');
 var quadros = require('./controller/quadros.js');
 var listas = require('./controller/listas.js');
 var cards = require('./controller/cards.js');
+var colecoes = require('./controller/colecoes.js');
 
 app.use('/usuarios', usuarios);
 app.use('/quadros', quadros);
 app.use('/listas', listas);
 app.use('/cards', cards);
+app.use('/colecoes',colecoes);
 
 var porta = 3000;
 
