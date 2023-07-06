@@ -360,6 +360,75 @@ router.post('/troca', async function (req, res) {
     res.json({ message: 'Nova senha registrada' });
 });
 
+
+// endpoint para compartilhar um determinado quadro com uma lista de usuários
+router.post('/compartilhar/:idQuadro', async function(req, res){
+    var claims = auth.verifyToken(req, res);
+
+    if(!claims){
+        res.status(401).json({ message : "Usuário não encontrado" });
+        return;
+    }
+
+    var idQuadro = req.params.idQuadro;
+    var emails = req.body.emails;
+
+    if(!idQuadro){
+        res.status(400).json({ erro: 'Dados incompletos' });
+        return;
+    }
+
+    if(!emails || emails.length == 0){
+        res.status(400).json({ erro: 'Dados incompletos' });
+        return;
+    }
+
+    var db = await models.connect();
+    var quadro = await db.Quadro.findOne({ _id: idQuadro }).exec();
+
+    if(!quadro){
+        res.status(400).json({ erro: 'Quadro não encontrado' });
+        return;
+    }
+
+    sg.setApiKey(config.sendGrid.apiKey);
+
+    let transporter = nodemailer.createTransport({
+        service: 'SendGrid',
+        auth: {
+            user: config.sendGrid.email,
+            pass: config.sendGrid.apiKey
+        }
+    })
+
+    var link = config.frontend.hostname + "/login/reset?token=" + usuario.token + "&email=" + usuario.email;
+
+    var email = {
+        from: {
+            name: "Equipe TaskVerse",
+            email: config.sendGrid.fromEmail
+        },
+        to: usuario.email,
+        subject: "Recuperação de senha",
+        templateId: config.sendGrid.templateId,
+        dynamicTemplateData : {
+            button_link: link,
+        }
+        // html: contents
+    };
+
+    sg.send(email, function(err, json){
+        if(err){
+            res.json(err);
+        }else{
+            res.json({ message: "OK" });
+        }
+    }
+    );
+});
+
+    
+
 //
 // Funções auxiliares
 //

@@ -124,12 +124,17 @@ router.delete('/:id', async function(req, res) {
     }
 
     var db = await models.connect();
+    var usuario = db.Usuario.findOne({ email: claims.email });
     var quadro = await db.Quadro.findById(req.params.id);
 
     if (!quadro) {
         res.json({ message: 'Quadro não encontrado!' });
         return;
     }
+
+    // Remove o quadro do usuario
+    usuario.quadros.pull(quadro);
+    await usuario.save();
 
     await quadro.deleteOne();
 
