@@ -271,7 +271,7 @@ export default {
         },
 
         mounted() {
-            
+
             this.recuperaQuadro(this.$route.params.idQuadro);
         }
     }
