@@ -8,6 +8,8 @@ import Router from 'vue-router'
 import Login from './components/Usuario/FormLogin.vue'
 import Registro from './components/Usuario/FormRegistro.vue'
 import Home from './components/HomePage.vue'
+import esqueci from './components/Usuario/FormRecuperaSenha.vue'
+
 
 /* Páginas de Quadros */
 import Quadro from './components/Quadros/HomeQuadros.vue'
@@ -31,9 +33,14 @@ const router = new Router({
       component: Login
     },
     {
-        path: '/registro',
-        name: 'registro',
-        component: Registro
+      path: '/esqueci',
+      name: 'esqueci',
+      component: esqueci
+    },
+    {
+      path: '/registro',
+      name: 'registro',
+      component: Registro
     },
     {
       path: '/quadros',
@@ -45,6 +52,7 @@ const router = new Router({
       name: 'quadroForm',
       component: QuadroForm
     },
+
   ]
 })
 

@@ -20,5 +20,4 @@ module.exports = {
         email: process.env.SENDGRID_USER,
         fromEmail: process.env.SENDGRID_FROM_EMAIL
     }
-
 }
