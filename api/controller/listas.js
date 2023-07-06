@@ -12,7 +12,7 @@ router.get('/', async function(req, res) {
 
     var db = await models.connect();
 
-    var quadro = db.Quadro.findById(idQuadro);
+    var quadro = await db.Quadro.findById(idQuadro);
 
     var queryCount = db.Lista.find({ _id: { $in: quadro.listas } });
     var totalItems = await queryCount.count();
@@ -29,7 +29,7 @@ router.get('/', async function(req, res) {
 // endpoint para recuperar uma lista
 router.get('/:id', async function(req, res) {
     var db = await models.connect();
-    var lista = await db.Quadro.Lista.findById(req.params.id);
+    var lista = await db.Lista.findById(req.params.id);
     res.json(lista);
 });
 

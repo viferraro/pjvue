@@ -15,6 +15,7 @@ import novaSenha from './components/Usuario/FormNovaSenha.vue'
 /* Páginas de Quadros */
 import Quadro from './components/Quadros/HomeQuadros.vue'
 import QuadroForm from './components/Quadros/FormQuadros.vue'
+import editar from './components/Quadros/FormEditaQuadros.vue'
 
 /* Páginas de Colecoes */
 import Colecao from './components/Colecao/HomeColecoes.vue'
@@ -69,7 +70,13 @@ const router = new Router({
     },
 
     {
-      path: '/novaSenha',
+      path: '/editar',
+      name: 'editar',
+      component: editar
+    },
+
+    {
+      path: '/login/reset',
       name: 'novaSenha',
       component: novaSenha
     },
