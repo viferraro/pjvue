@@ -9,6 +9,7 @@ import Login from './components/Usuario/FormLogin.vue'
 import Registro from './components/Usuario/FormRegistro.vue'
 import Home from './components/HomePage.vue'
 import esqueci from './components/Usuario/FormRecuperaSenha.vue'
+import novaSenha from './components/Usuario/FormNovaSenha.vue'
 
 
 /* Páginas de Quadros */
@@ -51,6 +52,12 @@ const router = new Router({
       path: '/quadros/novo',
       name: 'quadroForm',
       component: QuadroForm
+    },
+
+    {
+      path: '/login/reset',
+      name: 'novaSenha',
+      component: novaSenha
     },
 
   ]
