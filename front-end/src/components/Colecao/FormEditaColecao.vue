@@ -9,13 +9,13 @@
                                 <v-col cols="12">
                                     <v-card>
                                         <v-card-title>
-                                            <h1>Novo Quadro</h1>
+                                            <h1>Nova Colecao</h1>
                                         </v-card-title>
                                         <v-card-text>
                                             <v-row class="fill-height" align="center" justify="left">
                                                 <v-col cols="12">
                                                     <v-form>
-                                                        <v-text-field label="Nome do Quadro" required v-model="nomeQuadro">
+                                                        <v-text-field label="Nome da Coleção" required v-model="nomeColecao">
                                                         </v-text-field>
 
                                                         <v-row>
@@ -56,22 +56,7 @@
                                                             </v-col>
                                                         </v-row>
 
-                                                        <v-row>
-                                                            <v-col cols="12" md="6">
-                                                                <v-template>
-                                                                    <v-checkbox v-model="editavel"
-                                                                        label="Editável"></v-checkbox>
-                                                                </v-template>
-                                                            </v-col>
-
-                                                            <v-col cols="12" md="6">
-                                                                <v-template>
-                                                                    <v-checkbox v-model="favorito"
-                                                                        label="Favorito"></v-checkbox>
-                                                                </v-template>
-                                                            </v-col>
-                                                        </v-row>
-                                                        <v-btn color="primary" @click="criaQuadro" :disabled="!nomeQuadro">
+                                                        <v-btn color="primary" @click="criaColecao" :disabled="!nomeColecao">
                                                             Salvar
                                                         </v-btn>
                                                     </v-form>
@@ -95,7 +80,7 @@
                                             <v-row>
                                                 <v-col cols="10" justify="space-between">
                                                     <v-list-item-title class="headline mb-1" :style="{ color: corTexto }">
-                                                        {{ nomeQuadro }}
+                                                        {{ nomeColecao }}
                                                     </v-list-item-title>
                                                 </v-col>
                                                 <v-icon v-if="favorito" color="warning">mdi-star</v-icon>
@@ -131,11 +116,9 @@ export default {
     data() {
 
         return {
-            nomeQuadro: '',
+            nomeColecao: '',
             corFundo: '#4071ad',
             corTexto: '#000000',
-            editavel: false,
-            favorito: false,
 
             menuFundo: false,
             menuTexto: false,
@@ -209,18 +192,16 @@ export default {
             // Retorna a cor clareada no formato hexadecimal
             return lightenedHex;
         },
-        criaQuadro() {
-            axios.post(this.httpOptions.baseURL + '/quadros', {
-                titulo: this.nomeQuadro,
+        criaColecao() {
+            axios.post(this.httpOptions.baseURL + '/colecoes', {
+                titulo: this.nomeColecao,
                 corFundo: this.corFundo,
                 corTexto: this.corTexto,
-                editavel: this.editavel,
-                favorito: this.favorito
             }, this.httpOptions)
                 .then(response => {
                     console.log(response)
                     this.errorMessage = ""
-                    this.$router.replace('/quadros')
+                    this.$router.replace('/colecoes')
                 })
                 .catch(error => {
                     console.log(error)

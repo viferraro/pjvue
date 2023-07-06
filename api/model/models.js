@@ -23,6 +23,11 @@ var Quadro = null;
 var Lista = null;
 
 //
+// Variavel global que mantém o modelo das colecoes
+//
+var Colecao = null;
+
+//
 // Conecta com o banco de dados e carrega os modelos
 //
 async function connect() {
@@ -51,6 +56,8 @@ async function connect() {
 
         var colecaoSchema = {
             nome: String,
+            corFundo: String,
+            corTexto: String,
             quadros: [{type: mongoose.Schema.Types.ObjectId,ref:'Quadro'}]
         }
 

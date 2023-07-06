@@ -21,12 +21,63 @@
                               <v-form>
                                 <v-text-field
                                   label="Nome da Coleção"
-                                  required
+                                  requfired
                                   v-model="nomeColecao"
                                 >
                                 </v-text-field>
+                            
+                                <v-row>
+                                  <v-col
+                                    cols="12"
+                                    md="6"
+                                    align="center"
+                                  >
+                                    <v-text-field readonly hide-details solo placeholder="Cor de fundo">
+                                      <template v-slot:append>
+                                        <v-menu v-model="menuFundo" top nudge-bottom="105" nudge-left="16" :close-on-content-click="false">
+                                          <template v-slot:activator="{ on }">
+                                            <div :style="trocaEstiloFundo" v-on="on" />
+                                          </template>
+                                          <v-card>
+                                            <v-color-picker 
+                                              v-model="corFundo" 
+                                              flat
+                                              hide-canvas
+                                              hide-inputs
+                                              show-swatches
+                                            />
+                                          </v-card>
+                                        </v-menu>
+                                      </template>
+                                    </v-text-field>                                   
+                                    </v-col>
 
-                                  <v-btn
+                                    <v-col
+                                      cols="12"
+                                      md="6"
+                                    >
+                                    <v-text-field readonly hide-details solo placeholder="Cor de texto" >
+                                      <template v-slot:append>
+                                        <v-menu v-model="menuTexto" top nudge-bottom="105" nudge-left="16" :close-on-content-click="false">
+                                          <template v-slot:activator="{ on }">
+                                            <div :style="trocaEstiloTexto" v-on="on" />
+                                          </template>
+                                          <v-card>
+                                            <v-color-picker 
+                                              v-model="corTexto" 
+                                              flat
+                                              hide-canvas
+                                              hide-inputs
+                                              show-swatches
+                                            />
+                                          </v-card>
+                                        </v-menu>
+                                      </template>
+                                    </v-text-field> 
+                                    </v-col>
+                                  </v-row>                                  
+
+                                  <v-btn 
                                     color="primary"
                                     @click="criaColecao"
                                     :disabled="!nomeColecao"
@@ -84,7 +135,7 @@
                             <v-list-item-content>
                               <v-list-item-title
                                 :style="{ color: corTexto }"
-                              >Lista {{ item }}
+                              >Quadro {{ item }}
                             </v-list-item-title>
                             </v-list-item-content>
                           </v-list-item>
@@ -114,9 +165,7 @@
         return {
             nomeColecao: '',
             corFundo: '#4071ad',
-            corTexto: '#000000',        
-            editavel: false,
-            favorito: false,
+            corTexto: '#000000',
 
             menuFundo: false,
             menuTexto: false,
@@ -192,11 +241,9 @@
         },
         criaColecao() {
           axios.post(this.httpOptions.baseURL + '/colecoes', {
-            titulo: this.nomeColecoes,
+            titulo: this.nomeColecao,
             corFundo: this.corFundo,
             corTexto: this.corTexto,
-            editavel: this.editavel,
-            favorito: this.favorito
           }, this.httpOptions)
           .then(response => {
             console.log(response)

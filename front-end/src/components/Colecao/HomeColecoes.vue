@@ -17,7 +17,7 @@
 
                 <v-list-item link color="grey-lighten-4" @click="novaColecao">
                   <v-list-item-title>
-                    Criar nova coleção
+                    Criar nova coleções
                   </v-list-item-title>
                 </v-list-item>
               </v-list>
@@ -32,22 +32,23 @@
               <v-sheet class="mx-auto" max-width="344" tile>
                 <v-row class="fill-height" align="center" justify="center">
                   <v-col cols="12">
-                    <v-card class="mx-auto" max-width="500" elevation="15" :style="{ backgroundColor: red }">
+                    <v-card class="mx-auto" max-width="500" elevation="15" :style="{ backgroundColor: colecao.corFundo }">
                       <v-list-item three-line>
                         <v-list-item-content>
                           <v-row>
                             <v-col cols="10" justify="space-between">
-                              <v-list-item-title class="headline mb-1" :style="{ color: black }">
+                              <v-list-item-title class="headline mb-1" :style="{ color: colecao.corTexto }">
                                 {{ colecao.titulo }}
                               </v-list-item-title>
                             </v-col>
+
                           </v-row>
 
-                          <v-list v-for="itemLista in 5" :key="itemLista"
-                            :style="{ backgroundColor: green }">
+                          <v-list v-for="itemQuadro in 5" :key="itemQuadro"
+                                  :style="{ backgroundColor: corAjustada(colecao.corFundo) }">
                             <v-list-item>
                               <v-list-item-content>
-                                <v-list-item-title :style="{ color: yellow }">Lista {{ itemLista }}
+                                <v-list-item-title :style="{ color: colecao.corTexto }">Quadro {{ itemQuadro }}
                                 </v-list-item-title>
                               </v-list-item-content>
                             </v-list-item>
@@ -69,7 +70,7 @@
           <v-row v-else justify="center">
             <v-col cols="12" md="8" lg="6">
               <v-alert :value="true" type="info" elevation="2" icon="mdi-information">
-                Nenhuma colecao encontrada.
+                Nenhuma coleção encontrada.
               </v-alert>
             </v-col>
           </v-row>
@@ -78,7 +79,7 @@
     </v-main>
   </v-container>
 </template>
-  
+
 <script>
 
 import axios from 'axios';
@@ -126,9 +127,9 @@ export default {
 
       // Converte os valores de RGB de volta para a cor hexadecimal
       const lightenedHex = '#' +
-        lightenedRed.toString(16).padStart(2, '0') +
-        lightenedGreen.toString(16).padStart(2, '0') +
-        lightenedBlue.toString(16).padStart(2, '0');
+          lightenedRed.toString(16).padStart(2, '0') +
+          lightenedGreen.toString(16).padStart(2, '0') +
+          lightenedBlue.toString(16).padStart(2, '0');
 
       // Retorna a cor clareada no formato hexadecimal
       return lightenedHex;
@@ -138,14 +139,14 @@ export default {
       this.colecoes = [];
       this.loading = true;
       axios.get(this.httpOptions.baseURL + '/colecoes', this.httpOptions)
-        .then(response => {
-          this.loading = false;
-          this.colecoes = response.data.colecoes;
-        })
-        .catch(error => {
-          this.loading = false;
-          this.error = error;
-        })
+          .then(response => {
+            this.loading = false;
+            this.colecoes = response.data.colecoes;
+          })
+          .catch(error => {
+            this.loading = false;
+            this.error = error;
+          })
     },
 
     novaColecao: function () {

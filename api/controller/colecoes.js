@@ -64,9 +64,13 @@ router.post('/', async function(req, res) {
 
     var db = await models.connect();
     var titulo = req.body.titulo;
+    var corFundo = req.body.corFundo || "#4071ad";
+    var corTexto = req.body.corTexto || "#000000";
 
     var colecao = new db.Colecao({
         titulo: titulo,
+        corFundo: corFundo,
+        corTexto: corTexto,
     });
 
     // Adiciona a colecao ao usuario
