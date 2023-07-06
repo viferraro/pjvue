@@ -69,6 +69,20 @@
                                                 <v-tooltip bottom>
                                                   <template v-slot:activator="{ on }">
                                                     <v-btn
+                                                        icon
+                                                        v-on="on"
+                                                        color="success"
+                                                        @click="detalharQuadro(quadro._id)"
+                                                    >
+                                                      <v-icon>mdi-book-open</v-icon>
+                                                    </v-btn>
+                                                  </template>
+                                                  <span>Detalhar quadro</span>
+                                                </v-tooltip>
+
+                                                <v-tooltip bottom>
+                                                  <template v-slot:activator="{ on }">
+                                                    <v-btn
                                                       icon
                                                       v-on="on"
                                                       color="warning"
@@ -331,9 +345,11 @@
     novoQuadro: function () {
       this.$router.replace("/quadros/novo")
     },
-
     editaQuadro: function () {
       this.$router.replace("/quadros/editar")
+    },
+    detalharQuadro: function () {
+      this.$router.replace("/quadros/detalhar/:id")
     }
   },
 

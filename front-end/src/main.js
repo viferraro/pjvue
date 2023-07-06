@@ -16,6 +16,7 @@ import novaSenha from './components/Usuario/FormNovaSenha.vue'
 import Quadro from './components/Quadros/HomeQuadros.vue'
 import QuadroForm from './components/Quadros/FormQuadros.vue'
 import editar from './components/Quadros/FormEditaQuadros.vue'
+import QuadroDetalhe from './components/Quadros/DetalhamentoQuadro.vue'
 
 /* Páginas de Colecoes */
 import Colecao from './components/Colecao/HomeColecoes.vue'
@@ -57,6 +58,11 @@ const router = new Router({
       path: '/quadros/novo',
       name: 'quadroForm',
       component: QuadroForm
+    },
+    {
+      path: '/quadros/detalhar/:id',
+      name: 'quadroDetalhamento',
+      component:QuadroDetalhe
     },
     {
       path: '/colecoes/novo',
