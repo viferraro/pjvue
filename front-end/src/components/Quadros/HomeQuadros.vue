@@ -9,7 +9,7 @@
               <v-list :rounded=true>
                 <v-list-item link @click="recuperaQuadros">
                   <v-list-item-title>
-                    Atualizar quadros
+                    Meus quadros
                   </v-list-item-title>
                 </v-list-item>
 
@@ -31,7 +31,8 @@
                 <v-sheet class="mx-auto" max-width="344" tile>
                   <v-row class="fill-height" align="center" justify="center">
                     <v-col cols="12">
-                      <v-card class="mx-auto" max-width="500" elevation="15" :style="{ backgroundColor: quadro.corFundo }">
+                      <v-card class="mx-auto" max-width="500" elevation="15"
+                        :style="{ backgroundColor: quadro.corFundo }">
                         <v-list-item>
                           <v-list-item-content>
                             <v-row>
@@ -96,31 +97,11 @@
                     </v-col>
                   </v-row>
                 </v-sheet>
-                <!-- </template>
-                    </v-hover> -->
-
-
-
               </v-col>
             </v-row>
-
-            <!-- <v-row v-else justify="center">
-                  <v-col cols="12" md="8" lg="6">
-                    <v-alert
-                      :value="true"
-                      type="info"
-                      elevation="2"
-                      icon="mdi-information"
-                    >
-                      Nenhum quadro encontrado.
-                    </v-alert>
-                  </v-col>
-                </v-row> -->
           </v-col>
-          <!-- </v-row> -->
         </v-row>
       </v-container>
-
       <!-- Tela de confirmação de exclusão de quadro -->
       <v-dialog v-model="dialogExcluir" max-width="500px">
         <v-card>
@@ -294,14 +275,14 @@ export default {
 }
 </script>
 
-<stylte>
-    <!-- Inserindo um estilo que tenha posição absoluta e o item aparece de cima pra baixo -->
-    .v-btn--reveal {
-      transition: all .3s cubic-bezier(.55,0,.1,1);
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-    }
-  </stylte>
+<style>
+/* Inserindo um estilo que tenha posição absoluta e o item aparece de cima pra baixo */
+.v-btn--reveal {
+  transition: all .3s cubic-bezier(.55, 0, .1, 1);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+</style>

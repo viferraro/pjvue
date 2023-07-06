@@ -237,18 +237,18 @@ export default {
         },
 
         recuperaQuadro: function (idQuadro) {
-            this.quadro = null;
             this.loading = true;
-            axios.get(this.httpOptions.baseURL + '/quadros/' + idQuadro, this.httpOptions)
+            axios.get(this.httpOptions.baseURL + '/quadros' + idQuadro, this.httpOptions)
                 .then(response => {
-                    console.log(response.data)
+                    console.log(response.data.idQuadro)
                     this.loading = false;
-                    this.quadro = response.data;
+                    this.quadro = response.data.idQuadro;
                 })
                 .catch(error => {
                     this.loading = false;
                     this.error = error;
                 })
+
         },
 
         criaQuadro() {
@@ -271,8 +271,9 @@ export default {
         },
 
         mounted() {
-            
+
             this.recuperaQuadro(this.$route.params.idQuadro);
+            console.log(this.quadro)
         }
     }
 }   
