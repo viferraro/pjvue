@@ -136,7 +136,7 @@ export default {
     data() {
 
         return {
-            quadro: "",
+            quadro: null,
 
             // nomeQuadro: this.quadro.titulo,
             // corFundo: this.quadro.corFundo,
@@ -238,16 +238,17 @@ export default {
 
         recuperaQuadro: function (idQuadro) {
             this.loading = true;
-            axios.get(this.httpOptions.baseURL + '/quadros/' + idQuadro, this.httpOptions)
+            axios.get(this.httpOptions.baseURL + '/quadros' + idQuadro, this.httpOptions)
                 .then(response => {
-                    console.log(response.data)
+                    console.log(response.data.idQuadro)
                     this.loading = false;
-                    this.quadro = response.data;
+                    this.quadro = response.data.idQuadro;
                 })
                 .catch(error => {
                     this.loading = false;
                     this.error = error;
                 })
+
         },
 
         criaQuadro() {

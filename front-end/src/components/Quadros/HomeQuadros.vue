@@ -275,8 +275,11 @@ export default {
 }
 </script>
 
-<stylte>
-    <!-- Inserindo um estilo que tenha posição absoluta e o item aparece de cima pra baixo -->
+<style>
+    /* Inserindo um estilo que tenha posição absoluta e o item aparece de cima pra baixo */
+    .v-select, .v-select__selections {
+      position: relative;
+    }
     .v-btn--reveal {
       transition: all .3s cubic-bezier(.55,0,.1,1);
       position: absolute;
@@ -285,4 +288,4 @@ export default {
       right: 0;
       bottom: 0;
     }
-  </stylte>
+  </style>

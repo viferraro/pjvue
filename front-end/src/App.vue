@@ -58,7 +58,7 @@ export default {
     },
 
     homeQuadros: function() {
-      this.$router.replace('/quadros');      
+      this.$router.replace('/quadros/');      
     }
   },
 };
