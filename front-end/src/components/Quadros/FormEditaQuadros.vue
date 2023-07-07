@@ -9,13 +9,13 @@
                                 <v-col cols="12">
                                     <v-card>
                                         <v-card-title>
-                                            <h1>{{ nomeQuadro }}</h1>
+                                            <h1>{{ quadro.titulo }}</h1>
                                         </v-card-title>
                                         <v-card-text>
                                             <v-row class="fill-height" align="center" justify="left">
                                                 <v-col cols="12">
                                                     <v-form>
-                                                        <v-text-field required v-bind:title="nomeQuadro">
+                                                        <v-text-field required v-model="quadro.titulo">
                                                         </v-text-field>
 
                                                         <v-row>
@@ -25,13 +25,13 @@
                                                                     <template v-slot:append>
                                                                         <v-menu v-model="menuFundo" top nudge-bottom="105"
                                                                             nudge-left="16" :close-on-content-click="false">
-                                                                            <template>
-                                                                                <div
-                                                                                    :style="{ backgroundColor: corFundo }" />
+                                                                            <template v-slot:activator="{ on }">
+                                                                                <div :style="trocaEstiloFundo" v-on="on" />
                                                                             </template>
                                                                             <v-card>
-                                                                                <v-color-picker v-model="corFundo" flat
-                                                                                    hide-canvas hide-inputs show-swatches />
+                                                                                <v-color-picker v-model="quadro.corFundo"
+                                                                                    flat hide-canvas hide-inputs
+                                                                                    show-swatches />
                                                                             </v-card>
                                                                         </v-menu>
                                                                     </template>
@@ -44,12 +44,13 @@
                                                                     <template v-slot:append>
                                                                         <v-menu v-model="menuTexto" top nudge-bottom="105"
                                                                             nudge-left="16" :close-on-content-click="false">
-                                                                            <template>
-                                                                                <div :style="{ color: corTexto }" />
+                                                                            <template v-slot:activator="{ on }">
+                                                                                <div :style="trocaEstiloTexto" v-on="on" />
                                                                             </template>
                                                                             <v-card>
-                                                                                <v-color-picker v-model="corTexto" flat
-                                                                                    hide-canvas hide-inputs show-swatches />
+                                                                                <v-color-picker v-model="quadro.corTexto"
+                                                                                    flat hide-canvas hide-inputs
+                                                                                    show-swatches />
                                                                             </v-card>
                                                                         </v-menu>
                                                                     </template>
@@ -72,7 +73,8 @@
                                                                 </v-template>
                                                             </v-col>
                                                         </v-row>
-                                                        <v-btn color="primary" @click="criaQuadro" :disabled="!nomeQuadro">
+                                                        <v-btn color="primary" @click="atualizaQuadro(quadro._id)"
+                                                            :disabled="!quadro.titulo">
                                                             Salvar
                                                         </v-btn>
                                                     </v-form>
@@ -90,21 +92,23 @@
                             <v-col cols="12">
                                 <div class="overline mb-4">Prévia</div>
                                 <v-card class="mx-auto" max-width="344" elevation="15"
-                                    :style="{ backgroundColor: corFundo }">
+                                    :style="{ backgroundColor: quadro.corFundo }">
                                     <v-list-item three-line>
                                         <v-list-item-content>
                                             <v-row>
                                                 <v-col cols="10" justify="space-between">
-                                                    <v-list-item-title class="headline mb-1" :style="{ color: corTexto }">
-                                                        {{ nomeQuadro }}
+                                                    <v-list-item-title class="headline mb-1"
+                                                        :style="{ color: quadro.corTexto }">
+                                                        {{ quadro.titulo }}
                                                     </v-list-item-title>
                                                 </v-col>
-                                                <v-icon v-if="favorito" color="warning">mdi-star</v-icon>
+                                                <v-icon v-if="quadro.favorito" color="warning">mdi-star</v-icon>
                                             </v-row>
                                             <v-list v-for="item in 5" :key="item" :style="{ backgroundColor: corAjustada }">
                                                 <v-list-item border-bottom>
                                                     <v-list-item-content>
-                                                        <v-list-item-title :style="{ color: corTexto }">Lista {{ item }}
+                                                        <v-list-item-title :style="{ color: quadro.corTexto }">Lista {{ item
+                                                        }}
                                                         </v-list-item-title>
                                                     </v-list-item-content>
                                                 </v-list-item>
@@ -132,13 +136,13 @@ export default {
     data() {
 
         return {
-            quadro: "",
+            quadro: null,
 
-            nomeQuadro: this.quadro.titulo,
-            corFundo: this.quadro.corFundo,
-            corTexto: this.quadro.corTexto,
-            editavel: false,
-            favorito: false,
+            // nomeQuadro: this.quadro.titulo,
+            // corFundo: this.quadro.corFundo,
+            // corTexto: this.quadro.corTexto,
+            // editavel: false,
+            // favorito: false,
 
             menuFundo: false,
             menuTexto: false,
@@ -184,7 +188,7 @@ export default {
             }
         },
         corAjustada() {
-            return this.lightenColor(this.corFundo, this.lightenAmount);
+            return this.lightenColor(this.quadro.corFundo, this.lightenAmount);
         },
     },
 
@@ -212,19 +216,41 @@ export default {
             // Retorna a cor clareada no formato hexadecimal
             return lightenedHex;
         },
-        editaQuadro() {
-            this.quadro = "";
+        atualizaQuadro: function (idQuadro) {
             this.loading = true;
-            axios.get(this.httpOptions.baseURL + '/quadros', this.httpOptions)
+            axios.put(this.httpOptions.baseURL + '/quadros/' + idQuadro, {
+                titulo: this.quadro.titulo,
+                corFundo: this.quadro.corFundo,
+                corTexto: this.quadro.corTexto,
+                editavel: this.quadro.editavel,
+                favorito: this.quadro.favorito
+            }, this.httpOptions)
                 .then(response => {
-                    this.loading = false;
-                    this.quadro = response.data;
+                    console.log(response)
+                    this.errorMessage = ""
+                    this.$router.push({ name: 'Quadros' })
                 })
                 .catch(error => {
                     this.loading = false;
                     this.error = error;
                 })
         },
+
+        recuperaQuadro: function (idQuadro) {
+            this.loading = true;
+            axios.get(this.httpOptions.baseURL + '/quadros' + idQuadro, this.httpOptions)
+                .then(response => {
+                    console.log(response.data.idQuadro)
+                    this.loading = false;
+                    this.quadro = response.data.idQuadro;
+                })
+                .catch(error => {
+                    this.loading = false;
+                    this.error = error;
+                })
+
+        },
+
         criaQuadro() {
             axios.post(this.httpOptions.baseURL + '/quadros', {
                 titulo: this.nomeQuadro,
@@ -243,6 +269,12 @@ export default {
                     this.errorMessage = error.response.data.erro
                 });
         },
+
+        mounted() {
+
+            this.recuperaQuadro(this.$route.params.idQuadro);
+            console.log(this.quadro)
+        }
     }
 }   
 </script>

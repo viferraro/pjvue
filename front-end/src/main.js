@@ -76,7 +76,7 @@ const router = new Router({
     },
 
     {
-      path: '/editar',
+      path: 'quadros/editar/:id',
       name: 'editar',
       component: editar
     },

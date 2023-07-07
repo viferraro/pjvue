@@ -3,7 +3,7 @@ require('dotenv').config();
 
 module.exports = {
     database: {
-        connectionString: process.env.CONNECTION_STRING_ATLAS
+        connectionString: 'mongodb+srv://ericleal:l13iDhshTdcc19v0@clusterdsw.zjgivib.mongodb.net/?retryWrites=true&w=majority'
     },
     
     auth: {

@@ -61,11 +61,11 @@ export default {
     },
 
     homeQuadros: function() {
-      this.$router.replace('/quadros');      
+      this.$router.replace('/quadros/');
     },
 
     homeColecao: function() {
-      this.$router.replace('/colecoes');
+      this.$router.replace('/colecoes/');
     },
   },
 };
