@@ -1,11 +1,21 @@
 <template>
-  
+  <v-container>
+    <v-main>
+      <v-data-table :headers="headers" :items="items">
+        <template v-slot:item="{item}">
+          <tr>
+            <td v-for="column in item" :key="column">{{ column }}</td>
+          </tr>
+        </template>
+      </v-data-table>
+    </v-main>
+  </v-container>
 </template>
 
 <script>
 
 import axios from 'axios';
-import Loading from 'vue-loading-overlay';
+//import Loading from 'vue-loading-overlay';
 
 export default {
   data() {
@@ -16,6 +26,9 @@ export default {
       emailsSelecionados: [],
       quadro: null,
       listaArray:[],
+      headers:[],
+      items:[],
+
 
       dialogExcluir: false,
       dialogCompartilhar: false,
@@ -36,9 +49,9 @@ export default {
     }
   },
 
-  components: {
-    Loading,
-  },
+  // components: {
+  //   Loading,
+  // },
 
   methods: {
     corAjustada(color) {
@@ -96,6 +109,10 @@ export default {
           this.listaArray = this.quadro[i].listas;
         }
       }
+      for (let i = 0; i < this.listaArray.length-1; i++) {
+        this.headers.push(this.listaArray[i].titulo);
+        this.items.push(this.listaArray[i].cards);
+      }
     },
 
     // Recupera os usuários cadastrados
@@ -118,9 +135,9 @@ export default {
       this.$router.replace("/quadros/lista/editar" + idLista)
     },
 
-    detalharLista: function (idLista) {
-      this.$router.replace("/quadros/lista/detalhar/" + idLista)
-    }
+    excluirLista: function (idLista) {
+      this.$router.replace("/quadros/lista/excluir" + idLista)
+    },
   },
 
   mounted() {
