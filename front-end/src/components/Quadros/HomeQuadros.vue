@@ -281,8 +281,8 @@ export default {
       this.$router.replace("/quadros/editar/" + idQuadro)
     },
 
-    detalharQuadro: function () {
-      this.$router.replace("/quadros/detalhar/:id")
+    detalharQuadro: function (idQuadro) {
+      this.$router.replace("/quadros/detalhar/" + idQuadro)
     }
   },
 

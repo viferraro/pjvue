@@ -135,18 +135,40 @@ export default {
       return lightenedHex;
     },
 
-    atualizaColecoes: function () {
-      this.colecoes = [];
+    recuperaColecao: function () {
+      this.colecoes = null;
       this.loading = true;
       axios.get(this.httpOptions.baseURL + '/colecoes', this.httpOptions)
           .then(response => {
-            this.loading = false;
-            this.colecoes = response.data.colecoes;
+            var colecoes = response.data.colecoes;
+
+            var requests = colecoes.map(colecao =>
+                axios.get(this.httpOptions.baseURL + '/listas/?idQuadro=' + colecao._id)
+                    .then(response => {
+                      colecao.quadros = response.data.items;
+                    })
+            );
+
+            return Promise.all(requests)
+                .then(() => {
+                  this.colecoes = colecoes;
+                  this.loading = false;
+                });
           })
           .catch(error => {
-            this.loading = false;
-            this.error = error;
+            console.error('Erro ao recuperar as colecoes:', error);
+          });
+    },
+
+    recuperaUsuarios: function () {
+      axios.get(this.httpOptions.baseURL + '/usuarios')
+          .then(response => {
+            var dados = response.data.items;
+            this.usuarios = dados.filter(usuario => usuario.email != this.$root.credentials.email);
           })
+          .catch(error => {
+            console.error('Erro ao recuperar os usuários:', error);
+          });
     },
 
     novaColecao: function () {
@@ -156,7 +178,20 @@ export default {
 
   mounted() {
     console.log(this.$root.credentials);
-    this.atualizaColecoes();
+    this.recuperaColecao();
+    this.recuperaUsuarios();
   }
 }
 </script>
+
+<style>
+/* Inserindo um estilo que tenha posição absoluta e o item aparece de cima pra baixo */
+.v-btn--reveal {
+  transition: all .3s cubic-bezier(.55, 0, .1, 1);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+</style>
