@@ -10,6 +10,7 @@ import Registro from './components/Usuario/FormRegistro.vue'
 import Home from './components/HomePage.vue'
 import esqueci from './components/Usuario/FormRecuperaSenha.vue'
 import novaSenha from './components/Usuario/FormNovaSenha.vue'
+import alteraRegistro from './components/Usuario/FormAlteraRegistro.vue'
 
 
 /* Páginas de Quadros */
@@ -43,6 +44,11 @@ const router = new Router({
       path: '/registro',
       name: 'registro',
       component: Registro
+    },
+    {
+      path: '/Registro/alterar',
+      name: 'alteraRegistro',
+      component: alteraRegistro
     },
     {
       path: '/quadros',
