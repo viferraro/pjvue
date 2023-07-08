@@ -311,12 +311,11 @@
             },
         }
       },
-    }
-  },
+    
 
-  components: {
-    Loading,
-},
+      components: {
+        Loading,
+    },
 
       methods: {
         // Ajusta a cor de fundo de cada lista do quadro
