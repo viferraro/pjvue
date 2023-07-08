@@ -13,7 +13,7 @@ const models = require('../model/models.js');
 const auth = require("../auth/auth.js");
 
 // endpoint para retornar uma lista de usuários paginada	
-router.get('/', async function(req, res){
+router.get('/', async function (req, res) {
     var page = req.query.page || 1;
     var itemsPerPage = req.query.itemsPage || 5;
 
@@ -21,14 +21,14 @@ router.get('/', async function(req, res){
     var queryCount = db.Usuario.find({});
     var totalItems = await queryCount.count();
 
-    var queryList = db.Usuario.find({}).limit(itemsPerPage).skip(itemsPerPage * (page-1));
+    var queryList = db.Usuario.find({}).limit(itemsPerPage).skip(itemsPerPage * (page - 1));
     var items = await queryList.exec();
 
     res.json({ items, totalItems });
 });
 
 // endpoint para retornar um usuário específico
-router.get('/:email', async function(req, res){
+router.get('/:email', async function (req, res) {
     var db = await models.connect();
     var usuario = await db.Usuario.find({ email: req.params.email });
     res.json(usuario);
@@ -36,7 +36,7 @@ router.get('/:email', async function(req, res){
 
 
 // endpoint para criar um novo usuário
-router.post('/', async function(req, res){
+router.post('/', async function (req, res) {
     var db = await models.connect();
     var nome = req.body.nome;
     var email = req.body.email;
@@ -46,27 +46,27 @@ router.post('/', async function(req, res){
     var usuarioEmail = await db.Usuario.findOne({ email: email }).exec();
 
     if (usuarioEmail) {
-        res.status(400).json({message: "Usuário já cadastrado."});
+        res.status(400).json({ message: "Usuário já cadastrado." });
         return;
     }
 
     if (nome.length == 0) {
-        res.status(400).json({message: "O nome do usuário não pode ser vazio."});
+        res.status(400).json({ message: "O nome do usuário não pode ser vazio." });
         return;
     }
 
     if (!validaEmail(email)) {
-        res.status(400).json({message: "O e-mail do usuário não está em um formato adequado."});
+        res.status(400).json({ message: "O e-mail do usuário não está em um formato adequado." });
         return;
     }
 
     if (!validaSenha(senha)) {
-        res.status(400).json({message: "A senha do usuário não é válida."});
+        res.status(400).json({ message: "A senha do usuário não é válida." });
         return;
     }
 
     if (senha != senhaConfirmacao) {
-        res.status(400).json({message: "A confirmação de senha está diferente da senha."});
+        res.status(400).json({ message: "A confirmação de senha está diferente da senha." });
         return;
     }
 
@@ -81,36 +81,36 @@ router.post('/', async function(req, res){
     });
 
     await usuario.save();
-    res.json({ message: "O novo usuário foi criado." }) 
-    
+    res.json({ message: "O novo usuário foi criado." })
+
 });
 
 // endpoint para atualizar um usuário
-router.put('/:email', async function(req, res){
+router.put('/:email', async function (req, res) {
     var db = await models.connect();
     var email = req.params.email;
     var nome = req.body.nome;
     var senha = req.body.senha;
     var senhaConfirmacao = req.body.senhaConfirmacao;
 
-    if(!nome || !email || !senha || !senhaConfirmacao){
+    if (!nome || !email || !senha || !senhaConfirmacao) {
         res.status(400).json({ erro: 'Dados incompletos' });
         return;
     }
 
-    if(senha != senhaConfirmacao){
+    if (senha != senhaConfirmacao) {
         res.status(400).json({ erro: 'Dados não conferem' });
         return;
     }
 
-    var usuario = await db.Usuario.findOne({ email: email}).exec();
+    var usuario = await db.Usuario.findOne({ email: email }).exec();
 
-    if(!usuario){
+    if (!usuario) {
         res.status(400).json({ erro: 'Usuário não encontrado' });
         return;
     }
 
-    if(!validaSenha(senha)){
+    if (!validaSenha(senha)) {
         res.status(400).json({ erro: 'Dados inválidos' });
         return;
     }
@@ -120,66 +120,66 @@ router.put('/:email', async function(req, res){
     usuario.dataAtualizacao = new Date();
 
     await usuario.save();
-    return res.json({message: 'Usuário atualizado com sucesso'});
+    return res.json({ message: 'Usuário atualizado com sucesso' });
 });
 
 
 // endpoint para remover um usuário
-router.delete('/:email', async function(req, res){
+router.delete('/:email', async function (req, res) {
     var db = await models.connect();
     var email = req.params.email;
 
-    var usuario = await db.Usuario.findOne({ email: email}).exec();
+    var usuario = await db.Usuario.findOne({ email: email }).exec();
 
-    if(!usuario){
+    if (!usuario) {
         res.status(400).json({ erro: 'Usuário não encontrado' });
         return;
     }
 
     await usuario.deleteOne();
-    return res.json({message: 'Usuário removido com sucesso'});
+    return res.json({ message: 'Usuário removido com sucesso' });
 });
 
 
 // endpoint para logar um usuário
-router.post('/login', async function(req, res){
+router.post('/login', async function (req, res) {
 
     var email = req.body.email;
     var senha = req.body.senha;
 
-    if(!email || !senha){
+    if (!email || !senha) {
         res.status(400).json({ erro: 'Dados incompletos' });
         return;
     }
 
     var db = await models.connect();
-    var usuarioEmail = await db.Usuario.findOne({ email: email}).exec();
+    var usuarioEmail = await db.Usuario.findOne({ email: email }).exec();
 
-    if(!usuarioEmail){
+    if (!usuarioEmail) {
         res.status(400).json({ erro: 'Dados inválidos' });
         return;
     }
 
-    if(usuarioEmail.falhasLogin >= 3){
+    if (usuarioEmail.falhasLogin >= 3) {
         res.status(400).json({ erro: 'Usuário bloqueado' });
         return;
     }
 
     var senhaValida = await bcrypt.compareSync(senha, usuarioEmail.senha);
 
-    if(!senhaValida){
+    if (!senhaValida) {
         usuarioEmail.falhasLogin++;
         await usuarioEmail.save();
         res.status(400).json({ erro: 'Dados inválidos' });
         return;
     }
 
-    if(usuarioEmail.falhasLogin != 0){
+    if (usuarioEmail.falhasLogin != 0) {
         usuarioEmail.falhasLogin = 0;
         await usuarioEmail.save();
     }
 
-    var token = jwt.sign({ id: usuarioEmail._id, email }, config.auth.tokenKey, { expiresIn: '2h'});
+    var token = jwt.sign({ id: usuarioEmail._id, email }, config.auth.tokenKey, { expiresIn: '2h' });
 
     var usuario = {
         nome: usuarioEmail.nome,
@@ -187,30 +187,30 @@ router.post('/login', async function(req, res){
         token: token
     };
 
-    res.json({message: 'Usuário logado com sucesso', usuario});
+    res.json({ message: 'Usuário logado com sucesso', usuario });
 
 });
 
 
 // endpoint para enviar token por esquecimento de senha
-router.post('/esqueci', async function(req, res){
+router.post('/esqueci', async function (req, res) {
     var email = req.body.email;
     sg.setApiKey(config.sendGrid.apiKey);
 
-    if(!email){
+    if (!email) {
         res.status(400).json({ erro: 'Dados incompletos' });
         return;
     }
 
-    if(!validaEmail(email)){
+    if (!validaEmail(email)) {
         res.status(400).json({ erro: 'Dados inválidos' });
         return;
     }
 
     var db = await models.connect();
-    var usuario = await db.Usuario.findOne({ email: email}).exec();
+    var usuario = await db.Usuario.findOne({ email: email }).exec();
 
-    if(!usuario){
+    if (!usuario) {
         res.status(400).json({ erro: 'Usuário não encontrado' });
         return;
     }
@@ -242,7 +242,7 @@ router.post('/esqueci', async function(req, res){
         subject: "Recuperação de senha",
         templateId: config.sendGrid.templateId,
         dynamicTemplateData : {
-            button_link: link,
+            button_link: link
         }
         // html: contents
     };
@@ -258,46 +258,46 @@ router.post('/esqueci', async function(req, res){
 });
 
 // endpoint para recuperação de senha
-router.post('/reset', async function(req, res){
+router.post('/reset', async function (req, res) {
     var email = req.body.email;
     var token = req.body.token;
     var senha = req.body.senha;
     var senhaConfirmacao = req.body.senhaConfirmacao;
 
-    if(!email || !token || !senha || !senhaConfirmacao){
+    if (!email || !token || !senha || !senhaConfirmacao) {
         res.status(400).json({ erro: 'Dados incompletos' });
         return;
     }
 
-    if(senha != senhaConfirmacao){
+    if (senha != senhaConfirmacao) {
         res.status(400).json({ erro: 'Dados não conferem' });
         return;
     }
 
-    if(!validaSenha(senha)){
+    if (!validaSenha(senha)) {
         res.status(400).json({ erro: 'Dados inválidos' });
         return;
     }
 
-    if(!validaEmail(email)){
+    if (!validaEmail(email)) {
         res.status(400).json({ erro: 'Dados inválidos' });
         return;
     }
 
-    if(token.length != 32){
+    if (token.length != 32) {
         res.status(400).json({ erro: 'Token inválido' });
         return;
     }
 
     var db = await models.connect();
-    var usuario = await db.Usuario.findOne({ email: email}).exec();
+    var usuario = await db.Usuario.findOne({ email: email }).exec();
 
-    if(!usuario){
+    if (!usuario) {
         res.status(400).json({ erro: 'Usuário não encontrado' });
         return;
     }
 
-    if(!verificaValidadeTokenLogin(usuario.dataTokenSenha, 72)){
+    if (!verificaValidadeTokenLogin(usuario.dataTokenSenha, 72)) {
         res.status(400).json({ erro: 'Token inválido' });
         return;
     }
@@ -313,12 +313,12 @@ router.post('/reset', async function(req, res){
 
 
 // endpoint para troca de senha
-router.post('/troca', async function(req, res){
-    
+router.post('/troca', async function (req, res) {
+
     var claims = auth.verifyToken(req, res);
 
-    if(!claims){
-        res.status(401).json({ message : "Usuário não encontrado" });
+    if (!claims) {
+        res.status(401).json({ message: "Usuário não encontrado" });
         return;
     }
 
@@ -328,26 +328,26 @@ router.post('/troca', async function(req, res){
     var senhaNovaConfirmacao = req.body.senhaNovaConfirmacao;
 
     var db = await models.connect();
-    var usuario = await db.Usuario.findOnde({id: idUsuario}).exec();
+    var usuario = await db.Usuario.findOnde({ id: idUsuario }).exec();
 
-    if(!usuario){
-        res.status(401).json({ message : "Usuário não encontrado" });
+    if (!usuario) {
+        res.status(401).json({ message: "Usuário não encontrado" });
         return;
     }
 
     var senhaValida = await bcrypt.compareSync(senhaAtual, usuario.senha);
 
-    if(!senhaValida){
-        res.status(401).json({ message : "Dados inválidos" });
+    if (!senhaValida) {
+        res.status(401).json({ message: "Dados inválidos" });
         return;
     }
 
-    if(senhaNova != senhaNovaConfirmacao){
+    if (senhaNova != senhaNovaConfirmacao) {
         res.status(400).json({ erro: 'Dados não conferem' });
         return;
     }
 
-    if(!validaSenha(senhaNova)){
+    if (!validaSenha(senhaNova)) {
         res.status(400).json({ erro: 'Dados inválidos' });
         return;
     }
@@ -360,13 +360,82 @@ router.post('/troca', async function(req, res){
     res.json({ message: 'Nova senha registrada' });
 });
 
+
+// endpoint para compartilhar um determinado quadro com uma lista de usuários
+router.post('/compartilhar/:idQuadro', async function(req, res){
+    var claims = auth.verifyToken(req, res);
+
+    if(!claims){
+        res.status(401).json({ message : "Usuário não encontrado" });
+        return;
+    }
+
+    var idQuadro = req.params.idQuadro;
+    var emails = req.body.emails;
+
+    if(!idQuadro){
+        res.status(400).json({ erro: 'Dados incompletos' });
+        return;
+    }
+
+    if(!emails || emails.length == 0){
+        res.status(400).json({ erro: 'Dados incompletos' });
+        return;
+    }
+
+    var db = await models.connect();
+    var quadro = await db.Quadro.findOne({ _id: idQuadro }).exec();
+
+    if(!quadro){
+        res.status(400).json({ erro: 'Quadro não encontrado' });
+        return;
+    }
+
+    sg.setApiKey(config.sendGrid.apiKey);
+
+    let transporter = nodemailer.createTransport({
+        service: 'SendGrid',
+        auth: {
+            user: config.sendGrid.email,
+            pass: config.sendGrid.apiKey
+        }
+    })
+
+    var link = config.frontend.hostname + "/login/reset?token=" + usuario.token + "&email=" + usuario.email;
+
+    var email = {
+        from: {
+            name: "Equipe TaskVerse",
+            email: config.sendGrid.fromEmail
+        },
+        to: usuario.email,
+        subject: "Recuperação de senha",
+        templateId: config.sendGrid.templateId,
+        dynamicTemplateData : {
+            button_link: link,
+        }
+        // html: contents
+    };
+
+    sg.send(email, function(err, json){
+        if(err){
+            res.json(err);
+        }else{
+            res.json({ message: "OK" });
+        }
+    }
+    );
+});
+
+    
+
 //
 // Funções auxiliares
 //
 
 // função para verificar se o email é válido
 function validaEmail(email) {
-    if(!email) return false;
+    if (!email) return false;
 
     var re = /\S+@\S+\.\S+/;
     return re.test(email);
@@ -374,15 +443,15 @@ function validaEmail(email) {
 
 // função para verificar se a senha é válida
 function validaSenha(senha) {
-    if(!senha) return false;
+    if (!senha) return false;
 
-    if(senha.length < 8) return false;
+    if (senha.length < 8) return false;
 
     return /.*[a-zA-Z].*$/.test(senha) && /.*[0-9].*$/.test(senha);
 }
 
 // função para gerar um token aleatório
-function geraToken(size){
+function geraToken(size) {
     return crypto.randomBytes(size).toString('base64').slice(0, size);
 }
 

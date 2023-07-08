@@ -5,15 +5,15 @@ const config = require('../config/config.js');
 const models = require('../model/models.js');
 const auth = require('../auth/auth.js');
 
-// endpoint para recuperar os quadros paginados
+// endpoint para recuperar as colecoes paginadas
 router.get('/', async function(req, res) {
 
     var claims = getClaims(req, res);
-    console.log("🚀 ~ file: quadros.js:12 ~ router.get ~ claims:", claims)
+    console.log("🚀 ~ file: colecoes.js:12 ~ router.get ~ claims:", claims)
 
     if (claims === null) {
         return res.status(401).json({ message: 'Acesso não autorizado.' });
-    }    
+    }
 
     var page = req.query.page || 1;
     var itemsPerPage = req.query.itemsPage || 5;
@@ -22,13 +22,10 @@ router.get('/', async function(req, res) {
     var db = await models.connect();
     const regex = new RegExp(filter, "i");
 
-    var usuario = await db.Usuario.findOne({ email: claims.email });    
-    
-    // var queryCount = await db.Quadro.find({ _id: { $in: usuario.quadros } })
-    // var totalItems = await queryCount.count();
+    var usuario = await db.Usuario.findOne({ email: claims.email });
 
-    var queryList = db.Quadro
-        .find({ _id: { $in: usuario.quadros } })
+    var queryList = db.Colecao
+        .find({ _id: { $in: usuario.colecoes } })
         .limit(itemsPerPage)
         .skip(itemsPerPage * (page-1));
 
@@ -38,12 +35,12 @@ router.get('/', async function(req, res) {
         queryList = queryList.sort([[sortField, sortDesc]]);
     }
 
-    var quadros = await queryList.exec();
-    res.json({ quadros });    
+    var colecoes = await queryList.exec();
+    res.json({ colecoes });
 });
 
 
-// endpoint para recuperar um quadro
+// endpoint para recuperar uma colecao
 router.get('/:id', async function(req, res) {
 
     if (!getClaims(req, res)) {
@@ -51,15 +48,15 @@ router.get('/:id', async function(req, res) {
     }
 
     var db = await models.connect();
-    var quadro = await db.Quadro.findById(req.params.id);
-    res.json(quadro);
+    var colecao = await db.Colecao.findById(req.params.id);
+    res.json(colecao);
 });
 
-// endpoint para criar um quadro
+// endpoint para criar uma colecao
 router.post('/', async function(req, res) {
 
     var claims = getClaims(req, res);
-    console.log("🚀 ~ file: quadros.js:12 ~ router.get ~ claims:", claims)
+    console.log("🚀 ~ file: colecoes.js:12 ~ router.get ~ claims:", claims)
 
     if (claims === null) {
         return res.status(401).json({ message: 'Acesso não autorizado.' });
@@ -69,29 +66,25 @@ router.post('/', async function(req, res) {
     var titulo = req.body.titulo;
     var corFundo = req.body.corFundo || "#4071ad";
     var corTexto = req.body.corTexto || "#000000";
-    var editavel = req.body.editavel;
-    var favorito = req.body.favorito;
 
-    var quadro = new db.Quadro({
+    var colecao = new db.Colecao({
         titulo: titulo,
         corFundo: corFundo,
         corTexto: corTexto,
-        editavel: editavel,
-        favorito: favorito
     });
 
-    // Adiciona o quadro ao usuario
+    // Adiciona a colecao ao usuario
     var usuario = await db.Usuario.findOne({ email: claims.email });
-    usuario.quadros.push(quadro);    
+    usuario.colecoes.push(colecao);
     await usuario.save();
-    
-    await quadro.save();    
 
-    return res.json({ message: 'Quadro criado com sucesso com o id ' + quadro._id + ' !' });
+    await colecao.save();
+
+    return res.json({ message: 'Colecao criada com sucesso com o id ' + colecao._id + ' !' });
 
 });
 
-// endpoint para atualizar um quadro
+// endpoint para atualizar uma colecao
 router.put('/:id', async function(req, res) {
 
     if (!getClaims(req, res)) {
@@ -99,24 +92,21 @@ router.put('/:id', async function(req, res) {
     }
 
     var db = await models.connect();
-    var quadro = await db.Quadro.findById(req.params.id);
+    var colecao = await db.Colecao.findById(req.params.id);
 
-    if (!quadro) {
-        res.json({ message: 'Quadro não encontrado!' });
+    if (!colecao) {
+        res.json({ message: 'Colecao não encontrada!' });
         return;
     }
 
-    quadro.titulo = req.body.titulo || quadro.titulo;
-    quadro.corFundo = req.body.corFundo || "#4071ad";
-    quadro.corTexto = req.body.corTexto || "#000000";
-    quadro.editavel = req.body.editavel != null ? req.body.editavel : quadro.editavel;
-    quadro.favorito = req.body.favorito != null ? req.body.favorito : quadro.favorito;
-    await quadro.save();
+    colecao.titulo = req.body.titulo || colecao.titulo;
 
-    res.json({ message: 'Quadro atualizado com sucesso!' });
+    await colecao.save();
+
+    res.json({ message: 'Colecao atualizado com sucesso!' });
 });
 
-// endpoint para deletar um quadro
+// endpoint para deletar uma colecao
 router.delete('/:id', async function(req, res) {
 
     if (!getClaims(req, res)) {
@@ -124,28 +114,25 @@ router.delete('/:id', async function(req, res) {
     }
 
     var db = await models.connect();
-    var usuario = db.Usuario.findOne({ email: claims.email });
-    var quadro = await db.Quadro.findById(req.params.id);
+    var colecao = await db.Colecao.findById(req.params.id);
 
-    if (!quadro) {
-        res.json({ message: 'Quadro não encontrado!' });
+    if (!colecao) {
+        res.json({ message: 'Colecao não encontrada!' });
         return;
     }
 
-    // Remove o quadro do usuario
-    usuario.quadros.pull(quadro);
-    await usuario.save();
+    await colecao.deleteOne();
 
-    await quadro.deleteOne();
-
-    res.json({ message: 'Quadro removido com sucesso!' });
+    res.json({ message: 'Colecao removida com sucesso!' });
 });
+
+
 
 
 //  FUNÇÕES AUXILIARES
 // Função para validar o token de acesso
 function getClaims(req, res) {
-    
+
     var claims = auth.verifyToken(req, res);
 
     if (!claims) {
