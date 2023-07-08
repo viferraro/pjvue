@@ -25,7 +25,12 @@
             </v-col>
             
             <v-col cols="10">
-              <loading :active="loading" :is-full-page="true" />
+              <!-- <loading :active="loading" :is-full-page="true" /> -->
+              
+              <!-- Tela de carregamento -->
+              <v-row justify="center">
+                <loading :active.sync="loading" :can-cancel="false" :is-full-page="true" :color="this.$root.config.corSecundaria" :loader="'dots'"></loading>
+              </v-row>
                 <!-- <v-div v-show="error" /> -->
 
                 <v-sheet
@@ -35,16 +40,18 @@
                 >
                   <v-slide-group
                     show-arrows 
-                    class="pa-4"                    
+                    class="pa-4"
+                    name="slide-group-quadros"                    
                     >
                     <v-slide-group-item
                     v-for="quadro in quadros"
                     :key="quadro._id"
+                    name="slide-item-quadros"
                     >
                     <v-card                    
                       v-if="quadros.length > 0"                    
                       color="grey-lighten-1"
-                      :class="['ma-4', selectedClass]"
+                      :class="['ma-4']"
                       max-height="100%"
                       width="344"
                       >
@@ -95,7 +102,7 @@
                                                   icon
                                                   v-on="on"
                                                   color="black"
-                                                  @click="detalhar(quadro._id)"
+                                                  @click="detalharQuadro(quadro._id)"
                                                 >
                                                   <v-icon>mdi-eye-circle</v-icon>
                                                 </v-btn>
@@ -166,7 +173,7 @@
                                     <v-list-item-content>
                                       <v-list-item-title                                   
                                         :style="{ color: quadro.corTexto }"
-                                      >{{ lista.titulo }}
+                                      >{{ lista.titulo }}                                      
                                       </v-list-item-title>
                                     </v-list-item-content>
                                   </v-list-item>                                                                  
@@ -179,9 +186,10 @@
                                         <template v-slot:activator="{ on }">
                                           <v-btn
                                             icon
+                                            v-if="permiteEdicao(quadro.editavel)"
                                             v-on="on"
                                             :style="{ color: quadro.corTexto }"
-                                            @click="novaLista(quadro)"
+                                            @click="abrirNovaLista(quadro)"
                                           >
                                             <v-icon>mdi-plus-circle</v-icon>
                                           </v-btn>
@@ -271,7 +279,27 @@
           </v-card>
         </v-dialog>
 
-        <!-- Criando  -->
+        <!-- Tela de inclusão de lista no quadro -->
+        <v-dialog v-model="dialogNovaLista" max-width="500px">
+          <v-card>
+            <v-card-title class="headline">Nova lista</v-card-title>
+            <v-card-text>
+              <v-text-field
+                v-model="novaListaTitulo"
+                label="Título da lista"
+                outlined
+                dense
+              ></v-text-field>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="dialogNovaLista = false, novaListaTitulo=''">Cancelar</v-btn>
+              <v-btn color="green darken-1" text @click="criarLista()">Criar</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+
       </v-main>
     </v-container>
 
@@ -292,9 +320,11 @@
             usuarioEdita: false,
             edita: false,
             favorito: false,
+            novaListaTitulo: "",
 
             dialogExcluir: false,
             dialogCompartilhar: false,
+            dialogNovaLista: false,
             quadroEscolhido: null,
 
             lightenAmount: 0.3,
@@ -315,7 +345,7 @@
 
       components: {
         Loading,
-    },
+      },
 
       methods: {
         // Ajusta a cor de fundo de cada lista do quadro
@@ -352,8 +382,7 @@
           if(quadro.favorito.includes(email)){            
             return true;
           }
-          else{
-            console.log("🚀 ~ file: HomeQuadros.vue:321 ~ quadro:", quadro)            
+          else{          
             return false;
           }
         },
@@ -426,13 +455,43 @@
           },
           this.httpOptions)
           .then(() => {
-            console.log("Quadro favorito alterado com sucesso!");
-            this.recuperaQuadros();
           })
           .catch(error => {
             this.error = error;
           });
         },
+
+        // Abre a janela de formulário para inclusão de lista
+        abrirNovaLista: function(quadro) {          
+          this.quadroEscolhido = quadro;
+          this.dialogNovaLista = true;
+        },
+
+        // Inclui uma nova lista no quadro
+        criarLista: function() {
+          var idQuadro = this.quadroEscolhido._id;
+          var titulo = this.novaListaTitulo;
+
+          axios.post(this.httpOptions.baseURL +'/listas', {
+            idQuadro: idQuadro,
+            titulo: titulo
+          },
+          this.httpOptions)
+          .then(response => {
+            this.quadroEscolhido.listas.push(response.data.item);
+            this.novaListaTitulo = "";
+            this.quadros = this.quadros.map(quadro => {
+              if(quadro._id == idQuadro){
+                quadro.listas = this.quadroEscolhido.listas;
+              }
+            });
+            this.dialogNovaLista = false;
+            this.recuperaQuadros();
+          })
+          .catch(error => {
+            this.error = error;
+          });
+        },        
 
         // Acessa a página de um novo quadro
         novoQuadro: function() {
@@ -444,9 +503,12 @@
           this.$router.replace("/quadros/"+ idQuadro)
         },
 
-        
+        // Acessa a página de detalhamento de um quadro
+        detalharQuadro: function(idQuadro) {            
+          this.$router.replace("/quadros/detalhar/"+ idQuadro)
+        },        
 
-        // Abre a janela de formuário para compartilhar o quadro
+        // Abre a janela de formulário para compartilhar o quadro
         abrirCompartilhar: function(quadro) {
           console.log("🚀 ~ file: HomeQuadros.vue:397 ~ quadro:", quadro)
           

@@ -78,18 +78,6 @@
                                   </v-row>                                  
                                   
                                   <v-row>
-                                    <!-- <v-col
-                                      cols="12"
-                                      md="6"
-                                    >
-                                      <v-template>
-                                        <v-checkbox
-                                          v-model="editavel"
-                                          label="Editável"
-                                        ></v-checkbox>
-                                      </v-template>
-                                    </v-col> -->
-
                                     <v-col
                                       cols="12"
                                       md="6"
@@ -148,7 +136,7 @@
                               class="headline mb-1"
                               :style="{ color: corTexto }"
                             >
-                              {{ nomeQuadro }}
+                              {{ nomeQuadro }}  
                             </v-list-item-title>
                           </v-col>                      
                           <v-icon v-if="favorito" color="warning">mdi-star</v-icon> 
