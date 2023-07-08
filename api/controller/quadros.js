@@ -107,10 +107,11 @@ router.put('/:id', async function(req, res) {
     }
 
     quadro.titulo = req.body.titulo || quadro.titulo;
-    quadro.corFundo = req.body.corFundo || "#4071ad";
-    quadro.corTexto = req.body.corTexto || "#000000";
+    quadro.corFundo = req.body.corFundo || quadro.corFundo;
+    quadro.corTexto = req.body.corTexto || quadro.corTexto;
     quadro.editavel = req.body.editavel != null ? req.body.editavel : quadro.editavel;
     quadro.favorito = req.body.favorito != null ? req.body.favorito : quadro.favorito;
+    quadro.listas = req.body.listas || quadro.listas;
     await quadro.save();
 
     res.json({ message: 'Quadro atualizado com sucesso!' });
@@ -119,12 +120,14 @@ router.put('/:id', async function(req, res) {
 // endpoint para deletar um quadro
 router.delete('/:id', async function(req, res) {
 
+    var claims = getClaims(req, res);
+
     if (!getClaims(req, res)) {
         return res.status(401).json({ message: 'Acesso não autorizado.' });
     }
 
     var db = await models.connect();
-    var usuario = db.Usuario.findOne({ email: claims.email });
+    var usuario = await db.Usuario.findOne({ email: claims.email });
     var quadro = await db.Quadro.findById(req.params.id);
 
     if (!quadro) {
@@ -133,7 +136,11 @@ router.delete('/:id', async function(req, res) {
     }
 
     // Remove o quadro do usuario
-    usuario.quadros.pull(quadro);
+    usuario.quadros.map((quadro, index) => {
+        if (quadro._id == req.params.id) {
+            usuario.quadros.splice(index, 1);
+        }
+    });
     await usuario.save();
 
     await quadro.deleteOne();
