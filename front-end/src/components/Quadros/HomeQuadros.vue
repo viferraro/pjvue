@@ -25,137 +25,199 @@
             </v-col>
             
             <v-col cols="10">
-                <loading :active="loading" :is-full-page="true" />
-                <v-row v-if="quadros.length > 0" justify="space-around">
-                  <v-col v-for="quadro in quadros" :key="quadro._id" cols="4">
-                        <v-sheet
-                          class="mx-auto"
-                          max-width="344"
-                          tile
-                        >
-                          <v-row
-                            class="fill-height"
-                            align="center"
-                            justify="center"
+              <loading :active="loading" :is-full-page="true" />
+                <!-- <v-div v-show="error" /> -->
+
+                <v-sheet
+                  class="mx-auto"
+                  elevation="8"
+                  max-width="100%"
+                >
+                  <v-slide-group
+                    show-arrows 
+                    class="pa-4"                    
+                    >
+                    <v-slide-group-item
+                    v-for="quadro in quadros"
+                    :key="quadro._id"
+                    >
+                    <v-card                    
+                      v-if="quadros.length > 0"                    
+                      color="grey-lighten-1"
+                      :class="['ma-4', selectedClass]"
+                      max-height="100%"
+                      width="344"
+                      >
+                        <div class=" fill-height justify-center">
+                          <v-card
+                            class="mx-auto"
+                            width="344"
+                            elevation="15"
+                            :style="{ backgroundColor: quadro.corFundo}"
                           >
-                            <v-col cols="12">
-                              <v-card
-                                class="mx-auto"
-                                max-width="500"
-                                elevation="15"
-                                :style="{ backgroundColor: quadro.corFundo}"
-                              >
-                                <v-list-item >
-                                  <v-list-item-content>
-                                    <v-row>    
-                                      <v-col
-                                        cols="10"
-                                        justify="space-between"
-                                      >      
-                                      <v-hover 
-                                      v-slot="{ hover }"
+                            <v-list-item >
+                              <v-list-item-content>
+                                <v-row>    
+                                  <v-col
+                                    cols="10"
+                                    justify="space-between"
+                                  >      
+                                  <v-hover 
+                                  v-slot="{ hover }"
+                                  >
+                                    <v-list-item-title 
+                                      class="headline mb-1"
+                                      :style="{ color: quadro.corTexto }"
+                                    >
+                                      <v-btn 
+                                        icon
+                                        @click="toggleFavorito(quadro)"
                                       >
-                                        <v-list-item-title 
-                                          class="headline mb-1"
-                                          :style="{ color: quadro.corTexto }"
+                                        <v-icon
+                                          :color="emailFavorito(quadro) ? 'yellow' : 'grey'"
                                         >
-                                          {{ quadro.titulo }}
-                                            <v-expand-transition>
-                                              <div
-                                                v-if="hover"
-                                                class="d-flex transition-fast-in-fast-out "
-                                                style="height: 100%;"
-                                              >
-                                                <v-tooltip bottom>
-                                                  <template v-slot:activator="{ on }">
-                                                    <v-btn
-                                                      icon
-                                                      v-on="on"
-                                                      color="warning"
-                                                      @click="editarQuadro(quadro._id)"
-                                                    >
-                                                      <v-icon>mdi-pencil-circle</v-icon>
-                                                    </v-btn>
-                                                  </template>
-                                                  <span>Editar quadro</span>
-                                                </v-tooltip>
+                                          mdi-star
+                                        </v-icon>
+                                      </v-btn>
 
-                                                <v-tooltip bottom>
-                                                  <template v-slot:activator="{ on }">
-                                                    <v-btn
-                                                      icon
-                                                      v-on="on"
-                                                      color="error"
-                                                      @click="excluirQuadro(quadro._id)"
-                                                    >
-                                                      <v-icon>mdi-delete-circle</v-icon>
-                                                    </v-btn>
-                                                  </template>
-                                                  <span>Excluir quadro</span>
-                                                </v-tooltip>
+                                      {{ quadro.titulo }}
 
-                                                <v-tooltip bottom>
-                                                  <template v-slot:activator="{ on }">
-                                                    <v-btn
-                                                      icon
-                                                      v-on="on"
-                                                      color="success"
-                                                      @click="abrirCompartilhar(quadro._id)"
-                                                    >
-                                                      <v-icon>mdi-share-circle</v-icon>
-                                                    </v-btn>
-                                                  </template>
-                                                  <span>Compartilhar quadro</span>
-                                                </v-tooltip>
-                                              </div>
-                                            </v-expand-transition>
-                                            
-                                          </v-list-item-title>
-                                        </v-hover>
-                                      </v-col>   
-                                      
-                                      <v-icon v-if="!quadro.favorito" v-on:click="toggleFavorito(quadro._id, quadro.favorito)" color="warning">mdi-star-outline</v-icon>
-                                      <v-icon v-if="quadro.favorito" v-on:click="toggleFavorito(quadro._id, quadro.favorito)" color="warning">mdi-star</v-icon> 
-                                    </v-row>
+                                        <v-expand-transition>
+                                          <div
+                                            v-if="hover"
+                                            class="d-flex transition-fast-in-fast-out "
+                                            style="height: 100%;"
+                                          >
 
-                                    <v-list v-for="lista in quadro.listas" :key="lista"  :style="{ backgroundColor: corAjustada(quadro.corFundo) }">
-                                      <v-list-item>
-                                        <v-list-item-content>
-                                          <v-list-item-title                                   
+                                            <v-tooltip bottom>
+                                              <template v-slot:activator="{ on }">
+                                                <v-btn
+                                                  icon
+                                                  v-on="on"
+                                                  color="black"
+                                                  @click="detalhar(quadro._id)"
+                                                >
+                                                  <v-icon>mdi-eye-circle</v-icon>
+                                                </v-btn>
+                                              </template>
+                                              <span>Detalhar quadro</span>
+                                            </v-tooltip>
+
+                                            <v-show v-if="permiteEdicao(quadro.editavel)">
+                                              <v-tooltip bottom>
+                                                <template v-slot:activator="{ on }">
+                                                  <v-btn
+                                                    icon
+                                                    v-on="on"
+                                                    color="warning"
+                                                    @click="editarQuadro(quadro._id)"
+                                                  >
+                                                    <v-icon>mdi-pencil-circle</v-icon>
+                                                  </v-btn>
+                                                </template>
+                                                <span>Editar quadro</span>
+                                              </v-tooltip>
+
+                                              <v-tooltip bottom>
+                                                <template v-slot:activator="{ on }">
+                                                  <v-btn
+                                                    icon
+                                                    v-on="on"
+                                                    color="error"
+                                                    @click="abrirExcluir(quadro)"
+                                                  >
+                                                    <v-icon>mdi-delete-circle</v-icon>
+                                                  </v-btn>
+                                                </template>
+                                                <span>Excluir quadro</span>
+                                              </v-tooltip>
+                                            </v-show>
+
+                                            <v-tooltip bottom>
+                                              <template v-slot:activator="{ on }">
+                                                <v-btn
+                                                  icon
+                                                  v-on="on"
+                                                  color="success"
+                                                  @click="abrirCompartilhar(quadro)"
+                                                >
+                                                  <v-icon>mdi-share-circle</v-icon>
+                                                </v-btn>
+                                              </template>
+                                              <span>Compartilhar quadro</span>
+                                            </v-tooltip>
+                                          </div>
+                                        </v-expand-transition>
+                                        
+                                      </v-list-item-title>
+                                    </v-hover>
+                                  </v-col>   
+                                  
+                                  <v-col
+                                    justify="space-between"
+                                  >
+                                    
+                                  </v-col>
+
+                                </v-row>
+
+                                <v-list  v-for="lista in quadro.listas" :key="lista"  :style="{ backgroundColor: corAjustada(quadro.corFundo) }">
+                                  <v-list-item>
+                                    <v-list-item-content>
+                                      <v-list-item-title                                   
+                                        :style="{ color: quadro.corTexto }"
+                                      >{{ lista.titulo }}
+                                      </v-list-item-title>
+                                    </v-list-item-content>
+                                  </v-list-item>                                                                  
+                                </v-list>
+
+                                <v-list-item>
+                                  <v-list-item-content>
+                                    <v-list-item-title>
+                                      <v-tooltip bottom>     
+                                        <template v-slot:activator="{ on }">
+                                          <v-btn
+                                            icon
+                                            v-on="on"
                                             :style="{ color: quadro.corTexto }"
-                                          >{{ lista.titulo }}
-                                          </v-list-item-title>
-
-                                        </v-list-item-content>
-                                      </v-list-item>                                
-                                    </v-list>
+                                            @click="novaLista(quadro)"
+                                          >
+                                            <v-icon>mdi-plus-circle</v-icon>
+                                          </v-btn>
+                                        </template>
+                                        <span>Nova lista</span>
+                                      </v-tooltip>
+                                    </v-list-item-title>
                                   </v-list-item-content>
                                 </v-list-item>
-                              </v-card>
-                            </v-col>
-                          </v-row>
-                        </v-sheet>
-                      <!-- </template>
-                    </v-hover> -->
 
+                              </v-list-item-content>
+                            </v-list-item>
+                          </v-card>
+                        </div>
+                      </v-card>
+                    </v-slide-group-item>
+                  </v-slide-group>
+                </v-sheet>
 
-
-                  </v-col>
-                </v-row>
-
-                <!-- <v-row v-else justify="center">
+                <div v-if="quadros === null && !loading" justify="center">
                   <v-col cols="12" md="8" lg="6">
                     <v-alert
                       :value="true"
                       type="info"
                       elevation="2"
                       icon="mdi-information"
-                    >
+                      >
                       Nenhum quadro encontrado.
                     </v-alert>
                   </v-col>
-                </v-row> -->
-              </v-col>
+                </div>
+
+
+
+                
+            </v-col>
             <!-- </v-row> -->
           </v-row>
         </v-container>
@@ -168,7 +230,7 @@
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="dialogExcluir = false">Cancelar</v-btn>
-              <v-btn color="red darken-1" text @click="excluirQuadroConfirmado(quadroEscolhido)">Excluir</v-btn>
+              <v-btn color="red darken-1" text @click="excluirQuadro(quadroEscolhido._id)">Excluir</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -191,22 +253,25 @@
                 multiple
               ></v-select>
             </v-card-text>
-            <!-- Inserir a opção de torar o quadro editável ou não -->
+            
             <v-col>
-              <v-label class="text-left">Tornar quadro editável?</v-label>
-              <v-radio-group v-model="quadroEscolhido.editavel" row>
-                <v-radio label="Sim" value="true"></v-radio>
-                <v-radio label="Não" value="false"></v-radio>
-              </v-radio-group>
+              <v-show v-if="usuarioEdita">
+                <v-label class="text-left">Tornar quadro editável?</v-label>
+                <v-radio-group v-model="edita" row>
+                  <v-radio label="Sim" value="true"></v-radio>
+                  <v-radio label="Não" value="false"></v-radio>
+                </v-radio-group>
+              </v-show>
             </v-col>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="dialogCompartilhar = false">Cancelar</v-btn>
-              <v-btn color="green darken-1" text @click="compartilharQuadro(quadroEscolhido)">Compartilhar</v-btn>
+              <v-btn color="blue darken-1" text @click="dialogCompartilhar = false, emailsSelecionados = []">Cancelar</v-btn>
+              <v-btn color="green darken-1" text @click="compartilharQuadro()">Compartilhar</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
 
+        <!-- Criando  -->
       </v-main>
     </v-container>
 
@@ -223,11 +288,14 @@
             quadros: null,
             listas: [],
             usuarios: [],
-            emailsSelecionados: [], //
+            emailsSelecionados: [],
+            usuarioEdita: false,
+            edita: false,
+            favorito: false,
 
             dialogExcluir: false,
             dialogCompartilhar: false,
-            quadroEscolhido: "",
+            quadroEscolhido: null,
 
             lightenAmount: 0.3,
             error: "",
@@ -249,7 +317,9 @@
 },
 
       methods: {
-        corAjustada(color) {
+        // Ajusta a cor de fundo de cada lista do quadro
+        corAjustada: function(color) {
+          
           var amount = this.lightenAmount;
           // Remove o caractere '#' da cor hexadecimal
           const hexColor = color.replace('#', '');
@@ -274,6 +344,32 @@
           return lightenedHex;
         },
 
+        // Retorna se o quadro é favorito do usuário
+        emailFavorito: function(quadro) {
+          var email = this.$root.credentials.email;          
+          
+          if(quadro.favorito.includes(email)){            
+            return true;
+          }
+          else{
+            console.log("🚀 ~ file: HomeQuadros.vue:321 ~ quadro:", quadro)            
+            return false;
+          }
+        },
+
+        // Retorna se o quadro é editável pelo usuário
+        permiteEdicao: function(editaveis){
+          var email = this.$root.credentials.email;
+
+          if(editaveis.includes(email)){
+            return true;
+
+          }
+          else{
+            return false;
+          }
+        },
+
         // Recupera os quadros do usuário
         recuperaQuadros: function() {
           this.quadros = null;
@@ -281,7 +377,7 @@
           axios.get(this.httpOptions.baseURL +'/quadros', this.httpOptions)
           .then(response => {
             var quadros = response.data.quadros;
-            
+      
             var requests = quadros.map(quadro =>
               axios.get(this.httpOptions.baseURL +'/listas/?idQuadro='+ quadro._id)
                 .then(response => {
@@ -296,7 +392,7 @@
               });
           })
           .catch(error => {
-            console.error('Erro ao recuperar os quadros:', error);
+            this.error = error;
           });
         },
 
@@ -308,77 +404,97 @@
             this.usuarios = dados.filter(usuario => usuario.email != this.$root.credentials.email);
           })
           .catch(error => {
-            console.error('Erro ao recuperar os usuários:', error);
+            this.error = error;
           });
         },
 
         // Altera o status de favorito do quadro
-        toggleFavorito: function(idQuadro, favorito) {
-          console.log("🚀 ~ file: HomeQuadros.vue:197 ~ idQuadro:", idQuadro)
-          
-          axios.put(this.httpOptions.baseURL +'/quadros/'+ idQuadro, {
-            favorito: !favorito
-            },
-            this.httpOptions)
-            .then(() => {            
-              this.recuperaQuadros();
-            })
-            .catch(error => {
-              console.error('Erro ao alterar o status de favorito do quadro:', error);
-            });
-          },
+        toggleFavorito: function(quadro) {   
+          var emailUsuario = this.$root.credentials.email;
 
-          novoQuadro: function() {
-            this.$router.replace("/quadros/novo")
-          },
+          if(quadro.favorito.includes(emailUsuario)){
+            quadro.favorito = quadro.favorito.filter(email => email != emailUsuario);
+          }
+          else{
+            quadro.favorito.push(emailUsuario);
+          }
 
-          editarQuadro: function(idQuadro) {            
-            this.$router.replace("/quadros/"+ idQuadro)
+          console.log("🚀 ~ file: HomeQuadros.vue:144 ~ favoritos", quadro.favorito)
+          axios.put(this.httpOptions.baseURL +'/quadros/'+ quadro._id, {
+            favorito: quadro.favorito
           },
-
-          // Abre a janela de formuário para compartilhar o quadro
-          abrirCompartilhar: function(idQuadro) {
-            this.quadroEscolhido = idQuadro;
-            this.dialogCompartilhar = true;
-          },
-
-          // Compartilha o quadro com outro usuário
-          compartilharQuadro: function(idQuadro) {
-            console.log("🚀 ~ file: HomeQuadros.vue:247 ~ idQuadro:", idQuadro)
-            this.dialogCompartilhar = false;
-            // axios.post(this.httpOptions.baseURL +'/quadros/'+ idQuadro +'/compartilhar', {
-            //   usuarios: this.usuarios
-            // },
-            // this.httpOptions)
-            // .then(() => {
-            //   this.quadroEscolhido = "";
-            //   this.recuperaQuadros();
-            // })
-            // .catch(error => {
-            //   console.error('Erro ao compartilhar o quadro:', error);
-            // });
-          },
-
-          // Abre a janela de confirmação para excluir o quadro
-          excluirQuadro: function(idQuadro) {
-            console.log("🚀 ~ file: HomeQuadros.vue:293 ~ idQuadro:", idQuadro)
-            this.quadroEscolhido = idQuadro;
-            this.dialogExcluir = true;
-          },
-
-          // Exclui o quadro
-          excluirQuadroConfirmado: function(idQuadro) {
-            this.dialogExcluir = false;
-            axios.delete(this.httpOptions.baseURL +'/quadros/'+ idQuadro, this.httpOptions)
-            .then(() => {
-              this.quadroEscolhido = "";
-              this.recuperaQuadros();
-            })
-            .catch(error => {
-              console.error('Erro ao excluir o quadro:', error);
-            });
-          },
+          this.httpOptions)
+          .then(() => {
+            console.log("Quadro favorito alterado com sucesso!");
+            this.recuperaQuadros();
+          })
+          .catch(error => {
+            this.error = error;
+          });
         },
+
+        // Acessa a página de um novo quadro
+        novoQuadro: function() {
+          this.$router.replace("/quadros/novo")
+        },
+
+        // Acessa a página para editar um quadro
+        editarQuadro: function(idQuadro) {            
+          this.$router.replace("/quadros/"+ idQuadro)
+        },
+
+        
+
+        // Abre a janela de formuário para compartilhar o quadro
+        abrirCompartilhar: function(quadro) {
+          console.log("🚀 ~ file: HomeQuadros.vue:397 ~ quadro:", quadro)
+          
+          this.quadroEscolhido = quadro;
+          
+          var email = this.$root.credentials.email;
+
+          this.usuarioEdita = this.quadroEscolhido.editavel.includes(email);
+          
+          this.dialogCompartilhar = true;
+        },
+
+        // Compartilha o quadro com outro usuário
+        compartilharQuadro: function() {
+          axios.post(this.httpOptions.baseURL +'/usuarios/compartilhar/' + this.quadroEscolhido._id, {
+            usuarios: this.usuarios
+          },
+          this.httpOptions)
+          .then(() => {
+            console.log("Quadro compartilhado com sucesso!");
+            this.quadroEscolhido = "";
+            this.dialogCompartilhar = false;
+            this.recuperaQuadros();
+          })
+          .catch(error => {
+            this.dialogCompartilhar = false;
+            this.error = error;
+          });
+        },
+
+        // Abre a janela de confirmação para excluir o quadro
+        abrirExcluir: function(quadro) {
+          this.quadroEscolhido = quadro;
+          this.dialogExcluir = true;
+        },
+
+        // Exclui o quadro
+        excluirQuadro: function(idQuadro) {
+          this.dialogExcluir = false;
+          axios.delete(this.httpOptions.baseURL +'/quadros/'+ idQuadro, this.httpOptions)
+          .then(() => {
+            this.quadroEscolhido = null;
+            this.recuperaQuadros();
+          })
+          .catch(error => {
+            this.error = error
+          });
+        },
+      },
 
       mounted() {
         this.recuperaQuadros();
@@ -386,15 +502,3 @@
       }
     }  
   </script>
-
-  <stylte>
-    <!-- Inserindo um estilo que tenha posição absoluta e o item aparece de cima pra baixo -->
-    .v-btn--reveal {
-      transition: all .3s cubic-bezier(.55,0,.1,1);
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-    }
-  </stylte>

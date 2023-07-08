@@ -49,8 +49,8 @@ async function connect() {
             titulo: String,
             corFundo: String,
             corTexto: String,
-            editavel: Boolean,
-            favorito: Boolean,
+            editavel: [],
+            favorito: [],
             listas: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lista' }]
         }
 

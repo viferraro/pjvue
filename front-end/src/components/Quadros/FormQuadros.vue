@@ -78,7 +78,7 @@
                                   </v-row>                                  
                                   
                                   <v-row>
-                                    <v-col
+                                    <!-- <v-col
                                       cols="12"
                                       md="6"
                                     >
@@ -88,7 +88,7 @@
                                           label="Editável"
                                         ></v-checkbox>
                                       </v-template>
-                                    </v-col>
+                                    </v-col> -->
 
                                     <v-col
                                       cols="12"
@@ -188,10 +188,10 @@
       data() {
         
         return {
+            emailUsuario: this.$root.credentials.email,
             nomeQuadro: '',
             corFundo: '#4071ad',
-            corTexto: '#000000',        
-            editavel: false,
+            corTexto: '#000000',
             favorito: false,
 
             menuFundo: false,
@@ -215,7 +215,6 @@
       computed: {
         trocaEstiloFundo() {
           const { corFundo: color, menuFundo: menu } = this
-          console.log(color)
           return {  
             backgroundColor: color,
             cursor: 'pointer',
@@ -227,7 +226,6 @@
         },
         trocaEstiloTexto() {
           const { corTexto: color, menuTexto: menu } = this
-          console.log(color)
           return {
             backgroundColor: color,
             cursor: 'pointer',
@@ -267,23 +265,27 @@
           return lightenedHex;
         },
         criaQuadro() {
+          var favoritos = this.favorito ? [this.emailUsuario] : []
+          console.log("🚀 ~ file: FormQuadros.vue:269 ~ criaQuadro ~ favoritos:", favoritos)
+          var editavel = [this.emailUsuario]
+          console.log("🚀 ~ file: FormQuadros.vue:271 ~ criaQuadro ~ editavel:", editavel)
+          
+
           axios.post(this.httpOptions.baseURL + '/quadros', {
             titulo: this.nomeQuadro,
             corFundo: this.corFundo,
             corTexto: this.corTexto,
-            editavel: this.editavel,
-            favorito: this.favorito
+            editavel: editavel,
+            favorito: favoritos
           }, this.httpOptions)
-          .then(response => {
-            console.log(response)
-            this.errorMessage = ""
+          .then(() => {
+            this.error = ""
             this.$router.replace('/quadros')
           })
           .catch(error => {
-            console.log(error)
-            this.errorMessage = error.response.data.erro
+            this.error = error.response.data.erro
           });
       },
     }
-  }   
+  } 
 </script>

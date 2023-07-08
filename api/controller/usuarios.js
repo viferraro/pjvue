@@ -228,7 +228,7 @@ router.post('/esqueci', async function (req, res) {
         }
     })
 
-    var link = config.frontend.hostname + "/login/reset?token=" + usuario.token + "&email=" + usuario.email;
+    var link = config.frontend.hostname + "login/reset?token=" + usuario.token + "&email=" + usuario.email;
     // var contents = "Se você solicitou uma recuperação de senha, clique <a href='" + link + "'>aqui</a>.<br>";
     // contents += "Se não tiver pedido a recuperação de senha, relaxa. Só tentaram te dar um golpe!";
     // contents += "<br><br>Atenciosamente,<br>Equipe TaskVerse</br><br";
@@ -240,7 +240,7 @@ router.post('/esqueci', async function (req, res) {
         },
         to: usuario.email,
         subject: "Recuperação de senha",
-        templateId: config.sendGrid.templateId,
+        templateId: "d-523aad574cb0427faef95bb2158127af",
         dynamicTemplateData : {
             button_link: link
         }
@@ -363,13 +363,14 @@ router.post('/troca', async function (req, res) {
 
 // endpoint para compartilhar um determinado quadro com uma lista de usuários
 router.post('/compartilhar/:idQuadro', async function(req, res){
+    
     var claims = auth.verifyToken(req, res);
-
+    
     if(!claims){
         res.status(401).json({ message : "Usuário não encontrado" });
         return;
     }
-
+    
     var idQuadro = req.params.idQuadro;
     var emails = req.body.emails;
 
@@ -385,7 +386,9 @@ router.post('/compartilhar/:idQuadro', async function(req, res){
 
     var db = await models.connect();
     var quadro = await db.Quadro.findOne({ _id: idQuadro }).exec();
-
+    var usuario = await db.Usuario.findOne({ email: claims.email }).exec();
+    var destinatarios = await getDestinatarios(emails);
+    
     if(!quadro){
         res.status(400).json({ erro: 'Quadro não encontrado' });
         return;
@@ -401,31 +404,37 @@ router.post('/compartilhar/:idQuadro', async function(req, res){
         }
     })
 
-    var link = config.frontend.hostname + "/login/reset?token=" + usuario.token + "&email=" + usuario.email;
-
-    var email = {
-        from: {
-            name: "Equipe TaskVerse",
-            email: config.sendGrid.fromEmail
-        },
-        to: usuario.email,
-        subject: "Recuperação de senha",
-        templateId: config.sendGrid.templateId,
-        dynamicTemplateData : {
-            button_link: link,
+    var link = config.frontend.hostname + "quadroCompartilhado/" + quadro._id;
+    
+    for (var i = 0; i < destinatarios.length; i++) {
+        try{            
+            console.log("🚀 ~ file: usuarios.js:409 ~ router.post ~ link:", link)
+            var destinatario = destinatarios[i];
+            console.log("🚀 ~ file: usuarios.js:413 ~ router.post ~ destinatario:", destinatario)
+            var email = {
+                from: {
+                    name: "Equipe TaskVerse",
+                    email: config.sendGrid.fromEmail
+                },
+                to: destinatario.email,
+                subject: "Convite para acompanhar quadro",
+                templateId: "d-a03af7299e224fea9334ae6f401a811e",
+                dynamicTemplateDatabase: {
+                    urlSeguir: link
+                }
+            }
+    
+            sg.send(email);
         }
-        // html: contents
-    };
-
-    sg.send(email, function(err, json){
-        if(err){
-            res.json(err);
-        }else{
-            res.json({ message: "OK" });
-        }
+        catch(err){
+            console.log(err);
+            res.status(400).json({ erro: 'Erro ao enviar email' });
+        }        
     }
-    );
+
+    res.json({ message: 'Email enviado com sucesso' });
 });
+    
 
     
 
@@ -462,6 +471,17 @@ function verificaValidadeTokenLogin(dateToken, maximoHoras) {
     var dateNow = new Date();
     var hours = Math.abs(dateNow - dateToken) / (60.0 * 60.0 * 1000.0);
     return hours < maximoHoras;
+}
+
+
+//
+// Função para retornar os dados dos destinatários
+//
+async function getDestinatarios(emails) {
+    var db = await models.connect();
+    var usuarios = await db.Usuario.find({ email: { $in: emails } }).exec();
+    
+    return usuarios;
 }
 
 module.exports = router;
