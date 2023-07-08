@@ -9,17 +9,17 @@
                     </v-card-title>
                     <v-card-text>
                         <v-form>
-                            <v-text-field v-model="usuario.nome" label="Nome">
-                                {{ usuario.nome }}
+                            <v-text-field label="Nome">
+                                <!-- {{ usuario.nome }} -->
                             </v-text-field>
-                            <v-text-field v-model="usuario.email" label="email">
-                                {{ usuario.email }}
+                            <v-text-field label="email">
+                                <!-- {{ usuario.email }} -->
                             </v-text-field>
-                            <v-text-field @change="comparaSenha" label="Senha Atual" type="password" id="senhaHide">
+                            <v-text-field @change="comparaSenha" label="Senha Atual" v-model="senha" type="password" id="senhaHide">
 
                             </v-text-field>
-                            <v-text-field @change="alterarSenha" v-model="usuario.novaSenha" label="Nova Senha" type="password">
-                                {{ usuario.senha }}
+                            <v-text-field @change="alterarSenha" v-model="senhaConfirmacao" label="Nova Senha" type="password">
+                            
                             </v-text-field>
 
                             <v-btn color="primary" @click="registrar">
@@ -38,17 +38,19 @@ import axios from 'axios';
 
 export default {
     data: () => ({
-        usuario: {
-            nome: '',
-            email: '',
-            senhaAtual: '',
-            novaSenha: ''
-        },
+        usuario: null,
+        senha: '',
+        senhaConfirmacao: '',
         error: '',
     }),
     methods: {
         registrar() {
-            axios.post('http://localhost:3000/usuarios', this.usuario)
+            axios.post('http://localhost:3000/usuarios', {
+                    nome: this.usuario.nome,
+                    email: this.usuario.email,
+                    senha: this.senha,
+                    senhaConfirmacao: this.senhaConfirmacao
+                })
                 .then(() => {
                     this.$router.replace('/login')
                 })
@@ -81,8 +83,11 @@ export default {
 
         //função para recuperar o usuário logado	
         recuperaUsuario() {
-            axios.get('http://localhost:3000/usuarios')
+            var email = this.$root.credentials.email;
+            console.log("🚀 ~ file: FormAlteraRegistro.vue:87 ~ recuperaUsuario ~ email:", email)
+            axios.get('http://localhost:3000/usuarios/' + email)
                 .then((response) => {
+                    console.log(response.data);
                     this.usuario = response.data;
                 })
                 .catch((erro) => {
