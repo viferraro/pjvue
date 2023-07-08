@@ -64,6 +64,11 @@ export default {
       this.$router.replace('/quadros/');
     },
 
+    alteraRegistro: function () {
+      this.$router.replace('/Registro/alterar');
+
+    },
+
     homeColecao: function() {
       this.$router.replace('/colecoes/');
     },

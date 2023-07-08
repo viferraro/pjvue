@@ -90,15 +90,19 @@ router.put('/:email', async function (req, res) {
     var db = await models.connect();
     var email = req.params.email;
     var nome = req.body.nome;
-    var senha = req.body.senha;
+    var senhaAtual = req.body.senhaAtual;
+    console.log("🚀 ~ file: usuarios.js:94 ~ senhaAtual:", senhaAtual)
+    var senhaNova = req.body.senhaNova;
+    console.log("🚀 ~ file: usuarios.js:96 ~ senhaNova:", senhaNova)
     var senhaConfirmacao = req.body.senhaConfirmacao;
+    console.log("🚀 ~ file: usuarios.js:96 ~ senhaConfirmacao:", senhaConfirmacao)
 
-    if (!nome || !email || !senha || !senhaConfirmacao) {
+    if (!nome || !email || !senhaAtual || !senhaNova || !senhaConfirmacao) {
         res.status(400).json({ erro: 'Dados incompletos' });
         return;
     }
 
-    if (senha != senhaConfirmacao) {
+    if (senhaNova != senhaConfirmacao) {
         res.status(400).json({ erro: 'Dados não conferem' });
         return;
     }
@@ -110,13 +114,18 @@ router.put('/:email', async function (req, res) {
         return;
     }
 
-    if (!validaSenha(senha)) {
-        res.status(400).json({ erro: 'Dados inválidos' });
+    if (!validaSenha(senhaNova)) {
+        res.status(400).json({ erro: 'Senha deve ter no mínimo 8 caracteres (número e letras maiúsculas e minúsculas)' });
         return;
     }
 
+    // if (senhaAtual === bcrypt.hashSync(senhaNova, 10)) {
+    //     res.status(400).json({ erro: 'A senha nova não pode ser igual à senha anterior.' });
+    //     return;
+    // }
+
     usuario.nome = nome;
-    usuario.senha = bcrypt.hashSync(senha, 10);
+    usuario.senha = bcrypt.hashSync(senhaNova, 10);
     usuario.dataAtualizacao = new Date();
 
     await usuario.save();

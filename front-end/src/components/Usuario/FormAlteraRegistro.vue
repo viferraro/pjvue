@@ -9,20 +9,21 @@
                     </v-card-title>
                     <v-card-text>
                         <v-form>
-                            <v-text-field label="Nome">
-                                <!-- {{ usuario.nome }} -->
-                            </v-text-field>
-                            <v-text-field label="email">
-                                <!-- {{ usuario.email }} -->
-                            </v-text-field>
-                            <v-text-field @change="comparaSenha" label="Senha Atual" v-model="senha" type="password" id="senhaHide">
-
-                            </v-text-field>
-                            <v-text-field @change="alterarSenha" v-model="senhaConfirmacao" label="Nova Senha" type="password">
-                            
+                            <v-text-field label="Nome" v-model="usuario.nome">
+                                {{ usuario.nome }}
                             </v-text-field>
 
-                            <v-btn color="primary" @click="registrar">
+                            <v-text-field label="Email" v-model="usuario.email">
+                                {{ usuario.email }}
+                            </v-text-field>
+
+                            <v-text-field v-model="senha" label="Senha atual" type="password" />
+
+                            <v-text-field  v-model="novaSenha" label="Nova senha" type="password"/>     
+
+                            <v-text-field  v-model="senhaConfirmacao" label="Confirme a senha" type="password"/>           
+
+                            <v-btn color="primary" @click="atualizar">
                                 Alterar
                             </v-btn>
                         </v-form>
@@ -34,79 +35,42 @@
 </template>
 
 <script>
-import axios from 'axios';
+    import axios from 'axios';
 
-export default {
-    data: () => ({
-        usuario: null,
-        senha: '',
-        senhaConfirmacao: '',
-        error: '',
-    }),
-    methods: {
-        registrar() {
-            axios.post('http://localhost:3000/usuarios', {
-                    nome: this.usuario.nome,
-                    email: this.usuario.email,
-                    senha: this.senha,
-                    senhaConfirmacao: this.senhaConfirmacao
-                })
-                .then(() => {
-                    this.$router.replace('/login')
-                })
-                .catch((erro) => {
-                    console.log(erro);
-                    this.error = erro.response.data.message;
-                });
-        },
+    export default {
+        data() {
+            return {
+            usuario: {
+                nome: this.$root.credentials.nome,
+                email: this.$root.credentials.email
+            },
 
-        //Função para registrar uma nova senha
-        alterarSenha() {
-            this.senha = "";
-            axios.put('http://localhost:3000/usuarios', this.usuario.novaSenha)
-                .then(() => {
-                    this.$router.replace('/login')
-                })
-                .catch((erro) => {
-                    console.log(erro);
-                    this.error = erro.response.data.message;
-                });
-        },
-
-        comparaSenha() {
-            if (this.usuario.senhaAtual !== this.usuario.novaSenha) {
-                this.error = 'Senhas não conferem';
-            } else {
-                this.error = '';
+            senha: '',
+            novaSenha: '',
+            senhaConfirmacao: '',
+            error: '',
             }
         },
 
-        //função para recuperar o usuário logado	
-        recuperaUsuario() {
-            var email = this.$root.credentials.email;
-            console.log("🚀 ~ file: FormAlteraRegistro.vue:87 ~ recuperaUsuario ~ email:", email)
-            axios.get('http://localhost:3000/usuarios/' + email)
-                .then((response) => {
-                    console.log(response.data);
-                    this.usuario = response.data;
-                })
-                .catch((erro) => {
-                    console.log(erro);
-                });
-        },
-
-        mounted() {
-            this.recuperaUsuario();
+        methods: {
+            atualizar() {
+                this.error = '';
+                axios.put('http://localhost:3000/usuarios/' + this.usuario.email, 
+                    {
+                        nome: this.usuario.nome,
+                        email: this.usuario.email,
+                        senhaAtual: this.senha,
+                        senhaNova: this.novaSenha,
+                        senhaConfirmacao: this.senhaConfirmacao
+                    })
+                    .then(() => {
+                        this.$router.replace('/login')
+                    })
+                    .catch((erro) => {
+                        console.log("🚀 ~ file: FormAlteraRegistro.vue:68 ~ atualizar ~ erro:", erro)
+                        this.error = erro.response.data.erro;
+                    });
+            },
         }
-
     }
-}
 </script>
-
-
-//Definindo um estilo para ocultar o campo da senha atual
-<style scoped>
-#senhaHide {
-    display: none;
-}
-</style>

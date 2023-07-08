@@ -37,15 +37,23 @@ router.get('/:id', async function(req, res) {
 router.post('/', async function(req, res) {
     var db = await models.connect();
     var titulo = req.body.titulo;
-    var idQuadro = req.query.quadro;
+    var idQuadro = req.body.idQuadro;
 
     var quadro = await db.Quadro.findById(idQuadro);
 
     var lista = new db.Lista({
+        idQuadro: idQuadro,
         titulo: titulo
     });
 
-    quadro.listas.push(lista);
+    try {
+        quadro.listas.push(lista);
+    } catch (error) {
+        console.log(error);
+        res.json({ message: 'Erro ao criar lista!' +  error });
+        return;
+    }
+
     await quadro.save();
 
     await lista.save();
