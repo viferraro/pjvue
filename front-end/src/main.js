@@ -10,11 +10,18 @@ import Registro from './components/Usuario/FormRegistro.vue'
 import Home from './components/HomePage.vue'
 import esqueci from './components/Usuario/FormRecuperaSenha.vue'
 import novaSenha from './components/Usuario/FormNovaSenha.vue'
+import alteraRegistro from './components/Usuario/FormAlteraRegistro.vue'
 
 
 /* Páginas de Quadros */
 import Quadro from './components/Quadros/HomeQuadros.vue'
 import QuadroForm from './components/Quadros/FormQuadros.vue'
+import editar from './components/Quadros/FormEditaQuadros.vue'
+import QuadroDetalhe from './components/Quadros/DetalhamentoQuadro.vue'
+
+/* Páginas de Colecoes */
+import Colecao from './components/Colecao/HomeColecoes.vue'
+import ColecaoForm from './components/Colecao/FormColecoes.vue'
 
 /* Configuracao do router */
 Vue.config.productionTip = false
@@ -44,6 +51,11 @@ const router = new Router({
       component: Registro
     },
     {
+      path: '/Registro/alterar',
+      name: 'alteraRegistro',
+      component: alteraRegistro
+    },
+    {
       path: '/quadros',
       name: 'quadro',
       component: Quadro
@@ -52,6 +64,27 @@ const router = new Router({
       path: '/quadros/novo',
       name: 'quadroForm',
       component: QuadroForm
+    },
+    {
+      path: '/quadros/detalhar/:id',
+      name: 'quadroDetalhamento',
+      component:QuadroDetalhe
+    },
+    {
+      path: '/colecoes/novo',
+      name: 'colecaoForm',
+      component: ColecaoForm
+    },
+    {
+      path: '/colecoes/',
+      name: 'colecao',
+      component: Colecao
+    },
+
+    {
+      path: 'quadros/editar/:id',
+      name: 'editar',
+      component: editar
     },
 
     {

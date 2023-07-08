@@ -23,6 +23,11 @@ var Quadro = null;
 var Lista = null;
 
 //
+// Variavel global que mantém o modelo das colecoes
+//
+var Colecao = null;
+
+//
 // Conecta com o banco de dados e carrega os modelos
 //
 async function connect() {
@@ -42,7 +47,15 @@ async function connect() {
             tokenSenha: String,
             dataTokenSenha: Date,
             falhasLogin: { type: Number, default: 0 },
-            quadros: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Quadro' }]
+            quadros: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Quadro' }],
+            colecoes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Colecao' }]
+        }
+
+        var colecaoSchema = {
+            nome: String,
+            corFundo: String,
+            corTexto: String,
+            quadros: [{type: mongoose.Schema.Types.ObjectId,ref:'Quadro'}]
         }
 
         var quadroSchema = {
@@ -64,11 +77,12 @@ async function connect() {
         }
 
         Usuario = mongoose.model('usuarios', usuarioSchema);
+        Colecao = mongoose.model('Colecao', colecaoSchema,'colecoes');
         Quadro = mongoose.model('Quadro', quadroSchema, 'quadros');
         Lista = mongoose.model('Lista', listaSchema, 'listas');
     }
 
-    return { connection, Usuario, Quadro, Lista }    
+    return { connection, Usuario, Colecao, Quadro, Lista }
 }
 
 module.exports = { connect }

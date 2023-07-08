@@ -311,8 +311,10 @@
             },
         }
       },
+    }
+  },
 
-      components: {
+  components: {
     Loading,
 },
 

@@ -9,13 +9,13 @@
                                 <v-col cols="12">
                                     <v-card>
                                         <v-card-title>
-                                            <h1>{{ quadro.titulo }}</h1>
+                                            <h1>Nova Colecao</h1>
                                         </v-card-title>
                                         <v-card-text>
                                             <v-row class="fill-height" align="center" justify="left">
                                                 <v-col cols="12">
                                                     <v-form>
-                                                        <v-text-field required v-model="quadro.titulo">
+                                                        <v-text-field label="Nome da Coleção" required v-model="nomeColecao">
                                                         </v-text-field>
 
                                                         <v-row>
@@ -29,9 +29,8 @@
                                                                                 <div :style="trocaEstiloFundo" v-on="on" />
                                                                             </template>
                                                                             <v-card>
-                                                                                <v-color-picker v-model="quadro.corFundo"
-                                                                                    flat hide-canvas hide-inputs
-                                                                                    show-swatches />
+                                                                                <v-color-picker v-model="corFundo" flat
+                                                                                    hide-canvas hide-inputs show-swatches />
                                                                             </v-card>
                                                                         </v-menu>
                                                                     </template>
@@ -48,9 +47,8 @@
                                                                                 <div :style="trocaEstiloTexto" v-on="on" />
                                                                             </template>
                                                                             <v-card>
-                                                                                <v-color-picker v-model="quadro.corTexto"
-                                                                                    flat hide-canvas hide-inputs
-                                                                                    show-swatches />
+                                                                                <v-color-picker v-model="corTexto" flat
+                                                                                    hide-canvas hide-inputs show-swatches />
                                                                             </v-card>
                                                                         </v-menu>
                                                                     </template>
@@ -58,23 +56,7 @@
                                                             </v-col>
                                                         </v-row>
 
-                                                        <v-row>
-                                                            <v-col cols="12" md="6">
-                                                                <v-template>
-                                                                    <v-checkbox v-model="editavel"
-                                                                        label="Editável"></v-checkbox>
-                                                                </v-template>
-                                                            </v-col>
-
-                                                            <v-col cols="12" md="6">
-                                                                <v-template>
-                                                                    <v-checkbox v-model="favorito"
-                                                                        label="Favorito"></v-checkbox>
-                                                                </v-template>
-                                                            </v-col>
-                                                        </v-row>
-                                                        <v-btn color="primary" @click="atualizaQuadro(quadro._id)"
-                                                            :disabled="!quadro.titulo">
+                                                        <v-btn color="primary" @click="criaColecao" :disabled="!nomeColecao">
                                                             Salvar
                                                         </v-btn>
                                                     </v-form>
@@ -92,23 +74,21 @@
                             <v-col cols="12">
                                 <div class="overline mb-4">Prévia</div>
                                 <v-card class="mx-auto" max-width="344" elevation="15"
-                                    :style="{ backgroundColor: quadro.corFundo }">
+                                    :style="{ backgroundColor: corFundo }">
                                     <v-list-item three-line>
                                         <v-list-item-content>
                                             <v-row>
                                                 <v-col cols="10" justify="space-between">
-                                                    <v-list-item-title class="headline mb-1"
-                                                        :style="{ color: quadro.corTexto }">
-                                                        {{ quadro.titulo }}
+                                                    <v-list-item-title class="headline mb-1" :style="{ color: corTexto }">
+                                                        {{ nomeColecao }}
                                                     </v-list-item-title>
                                                 </v-col>
-                                                <v-icon v-if="quadro.favorito" color="warning">mdi-star</v-icon>
+                                                <v-icon v-if="favorito" color="warning">mdi-star</v-icon>
                                             </v-row>
                                             <v-list v-for="item in 5" :key="item" :style="{ backgroundColor: corAjustada }">
                                                 <v-list-item border-bottom>
                                                     <v-list-item-content>
-                                                        <v-list-item-title :style="{ color: quadro.corTexto }">Lista {{ item
-                                                        }}
+                                                        <v-list-item-title :style="{ color: corTexto }">Lista {{ item }}
                                                         </v-list-item-title>
                                                     </v-list-item-content>
                                                 </v-list-item>
@@ -136,13 +116,9 @@ export default {
     data() {
 
         return {
-            quadro: null,
-
-            // nomeQuadro: this.quadro.titulo,
-            // corFundo: this.quadro.corFundo,
-            // corTexto: this.quadro.corTexto,
-            // editavel: false,
-            // favorito: false,
+            nomeColecao: '',
+            corFundo: '#4071ad',
+            corTexto: '#000000',
 
             menuFundo: false,
             menuTexto: false,
@@ -188,7 +164,7 @@ export default {
             }
         },
         corAjustada() {
-            return this.lightenColor(this.quadro.corFundo, this.lightenAmount);
+            return this.lightenColor(this.corFundo, this.lightenAmount);
         },
     },
 
@@ -216,65 +192,22 @@ export default {
             // Retorna a cor clareada no formato hexadecimal
             return lightenedHex;
         },
-        atualizaQuadro: function (idQuadro) {
-            this.loading = true;
-            axios.put(this.httpOptions.baseURL + '/quadros/' + idQuadro, {
-                titulo: this.quadro.titulo,
-                corFundo: this.quadro.corFundo,
-                corTexto: this.quadro.corTexto,
-                editavel: this.quadro.editavel,
-                favorito: this.quadro.favorito
-            }, this.httpOptions)
-                .then(response => {
-                    console.log(response)
-                    this.errorMessage = ""
-                    this.$router.push({ name: 'Quadros' })
-                })
-                .catch(error => {
-                    this.loading = false;
-                    this.error = error;
-                })
-        },
-
-        recuperaQuadro: function (idQuadro) {
-            this.loading = true;
-            axios.get(this.httpOptions.baseURL + '/quadros' + idQuadro, this.httpOptions)
-                .then(response => {
-                    console.log(response.data.idQuadro)
-                    this.loading = false;
-                    this.quadro = response.data.idQuadro;
-                })
-                .catch(error => {
-                    this.loading = false;
-                    this.error = error;
-                })
-
-        },
-
-        criaQuadro() {
-            axios.post(this.httpOptions.baseURL + '/quadros', {
-                titulo: this.nomeQuadro,
+        criaColecao() {
+            axios.post(this.httpOptions.baseURL + '/colecoes', {
+                titulo: this.nomeColecao,
                 corFundo: this.corFundo,
                 corTexto: this.corTexto,
-                editavel: this.editavel,
-                favorito: this.favorito
             }, this.httpOptions)
                 .then(response => {
                     console.log(response)
                     this.errorMessage = ""
-                    this.$router.replace('/quadros')
+                    this.$router.replace('/colecoes')
                 })
                 .catch(error => {
                     console.log(error)
                     this.errorMessage = error.response.data.erro
                 });
         },
-
-        mounted() {
-
-            this.recuperaQuadro(this.$route.params.idQuadro);
-            console.log(this.quadro)
-        }
     }
 }   
 </script>
