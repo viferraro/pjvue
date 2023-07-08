@@ -91,11 +91,8 @@ router.put('/:email', async function (req, res) {
     var email = req.params.email;
     var nome = req.body.nome;
     var senhaAtual = req.body.senhaAtual;
-    console.log("🚀 ~ file: usuarios.js:94 ~ senhaAtual:", senhaAtual)
     var senhaNova = req.body.senhaNova;
-    console.log("🚀 ~ file: usuarios.js:96 ~ senhaNova:", senhaNova)
     var senhaConfirmacao = req.body.senhaConfirmacao;
-    console.log("🚀 ~ file: usuarios.js:96 ~ senhaConfirmacao:", senhaConfirmacao)
 
     if (!nome || !email || !senhaAtual || !senhaNova || !senhaConfirmacao) {
         res.status(400).json({ erro: 'Dados incompletos' });
