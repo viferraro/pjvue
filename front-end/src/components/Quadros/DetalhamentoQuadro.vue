@@ -1,13 +1,25 @@
 <template>
   <v-container>
     <v-main>
-      <v-data-table :headers="headers" :items="items">
+      <v-data-table
+          :headers="headers"
+          :items="items"
+          :server-items-length="totalItems"
+          class="elevation-1"
+         >
+
         <template v-slot:item="{item}">
-          <tr>
-            <td v-for="column in item" :key="column">{{ column }}</td>
-          </tr>
+
         </template>
       </v-data-table>
+
+<!--      <v-data-table :headers="headers" :items="items">-->
+<!--        <template v-slot:item="{item}">-->
+<!--          <tr>-->
+<!--            <td v-for="column in item" :key="column">{{ column }}</td>-->
+<!--          </tr>-->
+<!--        </template>-->
+<!--      </v-data-table>-->
     </v-main>
   </v-container>
 </template>
@@ -25,9 +37,10 @@ export default {
       usuarios: [],
       emailsSelecionados: [],
       quadro: null,
-      listaArray:[],
+
       headers:[],
       items:[],
+      totalItems:0,
 
 
       dialogExcluir: false,
@@ -103,16 +116,18 @@ export default {
           .catch(error => {
             console.error('Erro ao recuperar os quadros:', error);
           });
+      //pegar o quadro e as listas
       for (let i = 0; i < this.quadros.length-1; i++) {
-        if (this.$route.params.idQuadro == this.quadros[i]._id.toString()){
+        if (this.$route.params.idQuadro === this.quadros[i]._id.toString()){
           this.quadro = this.quadros[i];
-          this.listaArray = this.quadro[i].listas;
+          this.listaArray = this.quadro.listas;
         }
       }
-      for (let i = 0; i < this.listaArray.length-1; i++) {
-        this.headers.push(this.listaArray[i].titulo);
-        this.items.push(this.listaArray[i].cards);
-      }
+      this.items = this.listaArray;
+      // for (let i = 0; i < this.listaArray.length-1; i++) {
+      //   this.items.push(this.listaArray[i].cards);
+      // }
+      this.totalItems = this.listaArray.length;
     },
 
     // Recupera os usuários cadastrados
