@@ -8,9 +8,6 @@
           class="elevation-1"
          >
 
-        <template v-slot:item="{item}">
-
-        </template>
       </v-data-table>
 
 <!--      <v-data-table :headers="headers" :items="items">-->
@@ -120,14 +117,14 @@ export default {
       for (let i = 0; i < this.quadros.length-1; i++) {
         if (this.$route.params.idQuadro === this.quadros[i]._id.toString()){
           this.quadro = this.quadros[i];
-          this.listaArray = this.quadro.listas;
         }
       }
-      this.items = this.listaArray;
-      // for (let i = 0; i < this.listaArray.length-1; i++) {
-      //   this.items.push(this.listaArray[i].cards);
-      // }
-      this.totalItems = this.listaArray.length;
+      this.items = this.quadro.listas;
+      this.totalItems = this.items.length;
+      for (let i = 0; i < this.items.length-1; i++) {
+        this.headers.push(this.items[i].titulo);
+      }
+
     },
 
     // Recupera os usuários cadastrados
@@ -142,17 +139,6 @@ export default {
           });
     },
 
-    novaLista: function () {
-      this.$router.replace("/quadro/lista/nova")
-    },
-
-    editarLista: function (idLista) {
-      this.$router.replace("/quadros/lista/editar" + idLista)
-    },
-
-    excluirLista: function (idLista) {
-      this.$router.replace("/quadros/lista/excluir" + idLista)
-    },
   },
 
   mounted() {
