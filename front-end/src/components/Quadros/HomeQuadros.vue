@@ -414,7 +414,7 @@ export default {
 
     // Acessa a página para editar um quadro
     editarQuadro: function (idQuadro) {
-      this.$router.replace("/quadros/" + idQuadro)
+      this.$router.replace("/quadros/editar/" + idQuadro)
     },
 
     // Acessa a página de detalhamento de um quadro
