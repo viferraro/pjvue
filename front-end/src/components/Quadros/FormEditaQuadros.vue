@@ -135,14 +135,7 @@ export default {
 
     data() {
         return {
-            quadro: {
-                emailUsuario: this.$root.credentials.email,
-                nomeQuadro: "",
-                corFundo: "#ffffff",
-                corTexto: "#000000",
-                favorito: false,
-                editavel: false,
-            },
+            quadro: null,
 
             menuFundo: false,
             menuTexto: false,
@@ -216,15 +209,19 @@ export default {
             // Retorna a cor clareada no formato hexadecimal
             return lightenedHex;
         },
-       
-       //função para recuperar um quadro específico
-        recuperaQuadro: function (idQuadro) {
+
+        //função para recuperar um quadro específico
+        recuperaQuadro: function () {
+            this.quadro = null;
+            var idQuadro = this.$route.params;
+            console.log("🚀 ~ file: FormEditaQuadros.vue:216 ~ idQuadro:", idQuadro)
+
             this.loading = true;
             axios.get('http://localhost:3000/quadros/' + idQuadro)
                 .then(response => {
-                    console.log(response.data.idQuadro)
+                    console.log(response.data)
                     this.loading = false;
-                    this.quadro = response.data.idQuadro;
+                    this.quadro = response.data;
                 })
                 .catch(error => {
                     this.loading = false;
@@ -249,8 +246,7 @@ export default {
 
         mounted() {
 
-            this.recuperaQuadro(this.$route.params.idQuadro);
-            console.log(this.quadro)
+            this.recuperaQuadro();
         }
     }
 }   
