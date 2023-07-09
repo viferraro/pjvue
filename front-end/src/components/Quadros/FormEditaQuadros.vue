@@ -134,15 +134,15 @@ import axios from 'axios';
 export default {
 
     data() {
-
         return {
-            quadro: null,
-
-            // nomeQuadro: this.quadro.titulo,
-            // corFundo: this.quadro.corFundo,
-            // corTexto: this.quadro.corTexto,
-            // editavel: false,
-            // favorito: false,
+            quadro: {
+                emailUsuario: this.$root.credentials.email,
+                nomeQuadro: "",
+                corFundo: "#ffffff",
+                corTexto: "#000000",
+                favorito: false,
+                editavel: false,
+            },
 
             menuFundo: false,
             menuTexto: false,
@@ -216,29 +216,11 @@ export default {
             // Retorna a cor clareada no formato hexadecimal
             return lightenedHex;
         },
-        atualizaQuadro: function (idQuadro) {
-            this.loading = true;
-            axios.put(this.httpOptions.baseURL + '/quadros/' + idQuadro, {
-                titulo: this.quadro.titulo,
-                corFundo: this.quadro.corFundo,
-                corTexto: this.quadro.corTexto,
-                editavel: this.quadro.editavel,
-                favorito: this.quadro.favorito
-            }, this.httpOptions)
-                .then(response => {
-                    console.log(response)
-                    this.errorMessage = ""
-                    this.$router.push({ name: 'Quadros' })
-                })
-                .catch(error => {
-                    this.loading = false;
-                    this.error = error;
-                })
-        },
-
+       
+       //função para recuperar um quadro específico
         recuperaQuadro: function (idQuadro) {
             this.loading = true;
-            axios.get(this.httpOptions.baseURL + '/quadros' + idQuadro, this.httpOptions)
+            axios.get('http://localhost:3000/quadros/' + idQuadro)
                 .then(response => {
                     console.log(response.data.idQuadro)
                     this.loading = false;
@@ -248,26 +230,21 @@ export default {
                     this.loading = false;
                     this.error = error;
                 })
-
         },
 
-        criaQuadro() {
-            axios.post(this.httpOptions.baseURL + '/quadros', {
-                titulo: this.nomeQuadro,
-                corFundo: this.corFundo,
-                corTexto: this.corTexto,
-                editavel: this.editavel,
-                favorito: this.favorito
-            }, this.httpOptions)
+        //função para atualizar um quadro específico
+        atualizaQuadro: function () {
+            this.loading = true;
+            axios.put('http://localhost:3000/quadros/' + this.quadro._id, this.quadro)
                 .then(response => {
-                    console.log(response)
-                    this.errorMessage = ""
-                    this.$router.replace('/quadros')
+                    console.log(response.data.idQuadro)
+                    this.loading = false;
+                    this.quadro = response.data.idQuadro;
                 })
                 .catch(error => {
-                    console.log(error)
-                    this.errorMessage = error.response.data.erro
-                });
+                    this.loading = false;
+                    this.error = error;
+                })
         },
 
         mounted() {
