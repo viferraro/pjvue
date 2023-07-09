@@ -9,8 +9,9 @@
           <v-list-item>
             <v-list-item-title @click="homeColecao">Coleção</v-list-item-title>
           </v-list-item>
+          <v-divider class="my-2"></v-divider>
           <v-list-item>
-            <v-list-item-title @click="alteraRegistro">Configuração da conta</v-list-item-title>
+            <v-list-item-title @click="alteraRegistro">Configurações</v-list-item-title>
           </v-list-item>
         </v-list-item-group>
       </v-list>
