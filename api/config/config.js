@@ -3,7 +3,7 @@ require('dotenv').config();
 
 module.exports = {
     database: {
-        connectionString: process.env.CONNECTION_STRING_ATLAS
+        connectionString: 'mongodb://localhost:27017/pjvue'
     },
     
     auth: {

@@ -9,6 +9,9 @@
                 <v-list-item>
                   <v-list-item-title @click="homeColecao">Coleção</v-list-item-title>
                 </v-list-item>
+                <v-list-item>
+                  <v-list-item-title @click="alteraRegistro">Configuração da conta</v-list-item-title>
+                </v-list-item>
             </v-list-item-group>
         </v-list>
     </v-navigation-drawer>
@@ -21,10 +24,10 @@
 
         <v-spacer></v-spacer>
 
-        <span v-if="$root.credentials" @click="alteraRegistro">
+        <span v-if="$root.credentials">
           Olá, {{ $root.credentials.nome }}.
           <router-link :to="{ name: 'change-password' }" replace>
-            <v-btn icon><v-icon>mdi-lock-reset</v-icon></v-btn>
+           
           </router-link>
           <v-btn icon @click="logout"><v-icon>mdi-logout</v-icon></v-btn>
         </span>
