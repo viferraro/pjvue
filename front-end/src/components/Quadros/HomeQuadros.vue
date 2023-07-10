@@ -89,7 +89,7 @@
 
                                         <v-tooltip bottom>
                                           <template v-slot:activator="{ on }">
-                                            <v-btn icon v-on="on" color="success" @click="abrirCompartilhar(quadro)">
+                                            <v-btn icon v-on="on" color="success" @click="abrirCompartilhar(quadroEscolhido._id)">
                                               <v-icon>mdi-share-circle</v-icon>
                                             </v-btn>
                                           </template>
@@ -196,6 +196,9 @@
               @click="dialogCompartilhar = false, emailsSelecionados = []">Cancelar</v-btn>
             <v-btn color="green darken-1" text @click="compartilharQuadro()">Compartilhar</v-btn>
           </v-card-actions>
+          <v-alert v-if="sucesso" type="success">
+            Compartilhamento realizado com sucesso!
+          </v-alert>
         </v-card>
       </v-dialog>
 
@@ -235,6 +238,7 @@ export default {
       edita: false,
       favorito: false,
       novaListaTitulo: "",
+      sucesso: false,
 
       dialogExcluir: false,
       dialogCompartilhar: false,
@@ -425,20 +429,17 @@ export default {
     // Abre a janela de formulário para compartilhar o quadro
     abrirCompartilhar: function (quadro) {
       console.log("🚀 ~ file: HomeQuadros.vue:397 ~ quadro:", quadro)
-
+      this.usuariosSelecionados = [];    
       this.quadroEscolhido = quadro;
-
       var email = this.$root.credentials.email;
-
       this.usuarioEdita = this.quadroEscolhido.editavel.includes(email);
-
       this.dialogCompartilhar = true;
     },
 
     // Compartilha o quadro com outro usuário
     compartilharQuadro: function () {
       axios.post(this.httpOptions.baseURL + '/usuarios/compartilhar/' + this.quadroEscolhido._id, {
-        usuarios: [this.usuarios.email]
+        usuarios: this.usuariosSelecionados
       },
         this.httpOptions)
         .then(() => {
@@ -446,6 +447,8 @@ export default {
           this.quadroEscolhido = "";
           this.dialogCompartilhar = false;
           this.recuperaQuadros();
+          this.sucesso = true;
+          this.$router.replace("/quadros/");
         })
         .catch(error => {
           this.dialogCompartilhar = false;
