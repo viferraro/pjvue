@@ -40,14 +40,14 @@ export default {
   data() {
     return {
       form: { email: "", senha: "" },
-      error: ''
+      error: '',
     }
   },
 
   methods: {
     processForm: function () {
       this.error = '';
-
+      
       axios.post(this.$root.config.urlBack + "/usuarios/login", this.form)
         .then(response => {
           this.$root.credentials = response.data.usuario;
