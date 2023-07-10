@@ -25,135 +25,136 @@
           </v-col>
 
           <v-col cols="10">
-            <!-- <loading :active="loading" :is-full-page="true" /> -->
 
-            <!-- Tela de carregamento -->
+            <!-- Tela de carregamento e barra de erro -->
             <v-row justify="center">
               <loading :active.sync="loading" :can-cancel="false" :is-full-page="true"
                 :color="this.$root.config.corSecundaria" :loader="'dots'"></loading>
             </v-row>
-            <!-- <v-div v-show="error" /> -->
+            <p class="error pa-1 mb-8" v-if="error">{{error}}</p>
 
-            <v-sheet class="mx-auto" elevation="8" max-width="100%">
-              <v-slide-group show-arrows class="pa-4" name="slide-group-quadros">
-                <v-slide-group-item v-for="quadro in quadros" :key="quadro._id" name="slide-item-quadros">
-                  <v-card v-if="quadros.length > 0" color="grey-lighten-1" :class="['ma-4']" max-height="100%"
-                    width="344">
-                    <div class=" fill-height justify-center">
-                      <v-card class="mx-auto" width="344" elevation="15" :style="{ backgroundColor: quadro.corFundo }">
-                        <v-list-item>
-                          <v-list-item-content>
-                            <v-row>
-                              <v-col cols="10" justify="space-between">
-                                <v-hover v-slot="{ hover }">
-                                  <v-list-item-title class="headline mb-1" :style="{ color: quadro.corTexto }">
-                                    <v-btn icon @click="toggleFavorito(quadro)">
-                                      <v-icon :color="emailFavorito(quadro) ? 'yellow' : 'grey'">
-                                        mdi-star
-                                      </v-icon>
-                                    </v-btn>
 
-                                    {{ quadro.titulo }}
+            <v-show v-if="!loading && quadros.length > 0">
+              <v-sheet class="mx-auto" elevation="8" max-width="100%">
+                <v-slide-group show-arrows class="pa-4" name="slide-group-quadros">
+                  <v-slide-group-item v-for="quadro in quadros" :key="quadro._id" name="slide-item-quadros">
+                    <v-card color="grey-lighten-1" :class="['ma-4']" max-height="100%"
+                      width="344">
+                      <div class=" fill-height justify-center">
+                        <v-card class="mx-auto" width="344" elevation="15" :style="{ backgroundColor: quadro.corFundo }">
+                          <v-list-item>
+                            <v-list-item-content>
+                              <v-row>
+                                <v-col cols="10" justify="space-between">
+                                  <v-hover v-slot="{ hover }">
+                                    <v-list-item-title class="headline mb-1" :style="{ color: quadro.corTexto }">
+                                      <v-btn icon @click="toggleFavorito(quadro)">
+                                        <v-icon :color="emailFavorito(quadro) ? 'yellow' : 'grey'">
+                                          mdi-star
+                                        </v-icon>
+                                      </v-btn>
 
-                                    <v-expand-transition>
-                                      <div v-if="hover" class="d-flex transition-fast-in-fast-out " style="height: 100%;">
+                                      {{ quadro.titulo }}
 
-                                        <v-tooltip bottom>
-                                          <template v-slot:activator="{ on }">
-                                            <v-btn icon v-on="on" color="black" @click="detalharQuadro(quadro._id)">
-                                              <v-icon>mdi-eye-circle</v-icon>
-                                            </v-btn>
-                                          </template>
-                                          <span>Detalhar quadro</span>
-                                        </v-tooltip>
-
-                                        <v-show v-if="permiteEdicao(quadro.editavel)">
-                                          <v-tooltip bottom>
-                                            <template v-slot:activator="{ on }">
-                                              <v-btn icon v-on="on" color="warning" @click="editarQuadro(quadro._id)">
-                                                <v-icon>mdi-pencil-circle</v-icon>
-                                              </v-btn>
-                                            </template>
-                                            <span>Editar quadro</span>
-                                          </v-tooltip>
+                                      <v-expand-transition>
+                                        <div v-if="hover" class="d-flex transition-fast-in-fast-out " style="height: 100%;">
 
                                           <v-tooltip bottom>
                                             <template v-slot:activator="{ on }">
-                                              <v-btn icon v-on="on" color="error" @click="abrirExcluir(quadro)">
-                                                <v-icon>mdi-delete-circle</v-icon>
+                                              <v-btn icon v-on="on" color="black" @click="detalharQuadro(quadro._id)">
+                                                <v-icon>mdi-eye-circle</v-icon>
                                               </v-btn>
                                             </template>
-                                            <span>Excluir quadro</span>
+                                            <span>Detalhar quadro</span>
                                           </v-tooltip>
-                                        </v-show>
 
-                                        <v-tooltip bottom>
-                                          <template v-slot:activator="{ on }">
-                                            <v-btn icon v-on="on" color="success" @click="abrirCompartilhar(quadro)">
-                                              <v-icon>mdi-share-circle</v-icon>
-                                            </v-btn>
-                                          </template>
-                                          <span>Compartilhar quadro</span>
-                                        </v-tooltip>
-                                      </div>
-                                    </v-expand-transition>
+                                          <v-show v-if="permiteEdicao(quadro.editavel)">
+                                            <v-tooltip bottom>
+                                              <template v-slot:activator="{ on }">
+                                                <v-btn icon v-on="on" color="warning" @click="editarQuadro(quadro._id)">
+                                                  <v-icon>mdi-pencil-circle</v-icon>
+                                                </v-btn>
+                                              </template>
+                                              <span>Editar quadro</span>
+                                            </v-tooltip>
 
-                                  </v-list-item-title>
-                                </v-hover>
-                              </v-col>
+                                            <v-tooltip bottom>
+                                              <template v-slot:activator="{ on }">
+                                                <v-btn icon v-on="on" color="error" @click="abrirExcluir(quadro)">
+                                                  <v-icon>mdi-delete-circle</v-icon>
+                                                </v-btn>
+                                              </template>
+                                              <span>Excluir quadro</span>
+                                            </v-tooltip>
+                                          </v-show>
 
-                              <v-col justify="space-between">
+                                          <v-tooltip bottom>
+                                            <template v-slot:activator="{ on }">
+                                              <v-btn icon v-on="on" color="success" @click="abrirCompartilhar(quadro)">
+                                                <v-icon>mdi-share-circle</v-icon>
+                                              </v-btn>
+                                            </template>
+                                            <span>Compartilhar quadro</span>
+                                          </v-tooltip>
+                                        </div>
+                                      </v-expand-transition>
 
-                              </v-col>
+                                    </v-list-item-title>
+                                  </v-hover>
+                                </v-col>
 
-                            </v-row>
+                                <v-col justify="space-between">
 
-                            <v-list v-for="lista in quadro.listas" :key="lista"
-                              :style="{ backgroundColor: corAjustada(quadro.corFundo) }">
+                                </v-col>
+
+                              </v-row>
+
+                              <v-list v-for="lista in quadro.listas" :key="lista"
+                                :style="{ backgroundColor: corAjustada(quadro.corFundo) }">
+                                <v-list-item>
+                                  <v-list-item-content>
+                                    <v-list-item-title :style="{ color: quadro.corTexto }">{{ lista.titulo }}
+                                    </v-list-item-title>
+                                  </v-list-item-content>
+                                </v-list-item>
+                              </v-list>
+
                               <v-list-item>
                                 <v-list-item-content>
-                                  <v-list-item-title :style="{ color: quadro.corTexto }">{{ lista.titulo }}
+                                  <v-list-item-title>
+                                    <v-tooltip bottom>
+                                      <template v-slot:activator="{ on }">
+                                        <v-btn icon v-if="permiteEdicao(quadro.editavel)" v-on="on"
+                                          :style="{ color: quadro.corTexto }" @click="abrirNovaLista(quadro)">
+                                          <v-icon>mdi-plus-circle</v-icon>
+                                        </v-btn>
+                                      </template>
+                                      <span>Nova lista</span>
+                                    </v-tooltip>
                                   </v-list-item-title>
                                 </v-list-item-content>
                               </v-list-item>
-                            </v-list>
 
-                            <v-list-item>
-                              <v-list-item-content>
-                                <v-list-item-title>
-                                  <v-tooltip bottom>
-                                    <template v-slot:activator="{ on }">
-                                      <v-btn icon v-if="permiteEdicao(quadro.editavel)" v-on="on"
-                                        :style="{ color: quadro.corTexto }" @click="abrirNovaLista(quadro)">
-                                        <v-icon>mdi-plus-circle</v-icon>
-                                      </v-btn>
-                                    </template>
-                                    <span>Nova lista</span>
-                                  </v-tooltip>
-                                </v-list-item-title>
-                              </v-list-item-content>
-                            </v-list-item>
+                            </v-list-item-content>
+                          </v-list-item>
+                        </v-card>
+                      </div>
+                    </v-card>
+                  </v-slide-group-item>
+                </v-slide-group>
+              </v-sheet>
+            </v-show>
 
-                          </v-list-item-content>
-                        </v-list-item>
-                      </v-card>
-                    </div>
-                  </v-card>
-                </v-slide-group-item>
-              </v-slide-group>
-            </v-sheet>
-
-            <div v-if="quadros === null && !loading" justify="center">
-              <v-col cols="12" md="8" lg="6">
-                <v-alert :value="true" type="info" elevation="2" icon="mdi-information">
-                  Nenhum quadro encontrado.
-                </v-alert>
-              </v-col>
-            </div>
-
-
-
-
+            <!-- Caso contrário exibe mensagem que não há quadros cadastrados -->
+            <v-show v-if="!loading && quadros.length == 0">
+              <v-row justify="center">
+                <v-col cols="12" md="8" lg="6">
+                  <v-alert :value="true" type="info" elevation="2" icon="mdi-information">
+                    Nenhum quadro encontrado.
+                  </v-alert>
+                </v-col>
+              </v-row>
+            </v-show>
           </v-col>
           <!-- </v-row> -->
         </v-row>
