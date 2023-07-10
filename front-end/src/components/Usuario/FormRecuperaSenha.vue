@@ -2,7 +2,7 @@
     <v-row v-show="!$root.credentials" class="mt-8">
         <v-col offset-md="4" md="4">
             <h2 class="form-title">Recuperação de Senha</h2>
-            
+
             <p class="error pa-1 mb-8" v-if="error">{{ error }}</p>
 
             <v-form @submit.prevent="processForm">
@@ -34,8 +34,7 @@ export default {
             this.error = '';
 
             axios.post(this.$root.config.urlBack + "/usuarios/esqueci", this.form)
-                .then(response => {
-                    this.$root.credentials = response.data;
+                .then(() => {
                     this.$router.replace('/login');
                 })
                 .catch(error => {

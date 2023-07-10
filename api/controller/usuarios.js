@@ -120,7 +120,9 @@ router.put('/:email', async function (req, res) {
     //     res.status(400).json({ erro: 'A senha nova não pode ser igual à senha anterior.' });
     //     return;
     // }
-
+    if (body.quadro !== null) {
+        usuario.quadros.push(body.quadro);
+    }
     usuario.nome = nome;
     usuario.senha = bcrypt.hashSync(senhaNova, 10);
     usuario.dataAtualizacao = new Date();
@@ -366,7 +368,6 @@ router.post('/troca', async function (req, res) {
     res.json({ message: 'Nova senha registrada' });
 });
 
-
 // endpoint para compartilhar um determinado quadro com uma lista de usuários
 router.post('/compartilhar/:idQuadro', async function (req, res) {
 
@@ -378,6 +379,7 @@ router.post('/compartilhar/:idQuadro', async function (req, res) {
     }
 
     var idQuadro = req.params.idQuadro;
+    console.log("🚀 ~ file: usuarios.js:382 ~ idQuadro:", idQuadro)
     var emails = req.body.emails;
 
     if (!idQuadro) {
@@ -392,7 +394,7 @@ router.post('/compartilhar/:idQuadro', async function (req, res) {
 
     var db = await models.connect();
     var quadro = await db.Quadro.findOne({ _id: idQuadro }).exec();
-    var usuario = await db.Usuario.findOne({ email: claims.email }).exec();
+    // var usuario = await db.Usuario.findOne({ email: claims.email }).exec();
     var destinatarios = await getDestinatarios(emails);
 
     if (!quadro) {
@@ -426,7 +428,7 @@ router.post('/compartilhar/:idQuadro', async function (req, res) {
                 subject: "Convite para acompanhar quadro",
                 templateId: "d-f5a5b386ffc448f48bc2122c8c658a88",
                 dynamicTemplateDatabase: {
-                    buttonCpt: link
+                    buttonCpt: link + '?idQuadro=' + idQuadro + '&emailUsuario=' + destinatario.email
                 }
             }
 
