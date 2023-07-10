@@ -22,8 +22,21 @@ router.get('/', async function(req, res) {
         .limit(itemsPerPage)
         .skip(itemsPerPage * (page - 1));   
     
-    var items = await queryList.exec();
-    res.json({ items, totalItems });  
+    var listas = await queryList.exec();
+    var cards = [];
+
+    var totalCards = 0;
+
+    listas.forEach(function(item) {
+        totalCards = Math.max(item.cards.length, totalCards);
+
+        cards.push( {
+            idLista: item._id,
+            cards: item.cards
+        });
+    });
+
+    res.json({ items: listas, totalItems, cards: cards, totalCards: totalCards });  
 });
 
 // endpoint para recuperar uma lista
@@ -64,14 +77,49 @@ router.post('/', async function(req, res) {
 // endpoint para atualizar uma lista
 router.put('/:id', async function(req, res) {
     var db = await models.connect();
-    var lista = await db.Lista.findById(req.params.id);
+    var lista = await db.Lista.findById(req.params.id);    
+    var card = findCardIndexById(lista, req.body._id);    
 
     if (!lista) {
         res.json({ message: 'Lista não encontrada!' });
         return;
     }
+    
+    if (req.body.conteudo !== lista.cards.conteudo) {
+        lista.cards.conteudo = req.body.conteudo;
+        lista.cards.dtUltimaEdicao = Date.now();
+    }
 
-    lista.titulo = req.body.titulo;
+    lista.titulo = req.body.titulo || lista.titulo;
+    lista.save();
+
+    return res.json({ message: 'Lista atualizada com sucesso!' });
+});
+
+// endpoint para atualizar um card em uma lista
+router.put('/:id/card', async function(req, res) {
+    var db = await models.connect();
+    var lista = await db.Lista.findById(req.params.id);    
+    var cardNovo = findCardIndexById(lista, req.body._id);
+    console.log("🚀 ~ file: listas.js:111 ~ router.put ~ req.body:", req.body)
+
+    if (!lista) {
+        res.json({ message: 'Lista não encontrada!' });
+        return;
+    }
+    
+    if (cardNovo == -1) {
+        lista.cards.push({
+            conteudo: req.body.conteudo,
+            dtCriacao: req.body.dtCriacao,
+            dtUltimaEdicao: Date.now()
+        });
+    }
+    else {
+        lista.cards[cardNovo].conteudo = req.body.conteudo || lista.cards[cardNovo].conteudo;
+        lista.cards[cardNovo].dtUltimaEdicao = Date.now();
+    }
+
     lista.save();
 
     return res.json({ message: 'Lista atualizada com sucesso!' });
@@ -91,5 +139,39 @@ router.delete('/:id', async function(req, res) {
 
     return res.json({ message: 'Lista deletada com sucesso!' });
 });
+
+
+// endpoint para deletar um card de uma lista
+router.delete('/:id/card', async function(req, res) {
+    var db = await models.connect();
+    var lista = await db.Lista.findById(req.params.id);
+
+    if (!lista) {
+        res.json({ message: 'Lista não encontrada!' });
+        return;
+    }
+
+    console.log("🚀 ~ file: listas.js:155 ~ router.delete ~ req.body._id:", req.body._id)
+    var novaLista = lista.cards.filter(card => card._id !== req.body._id);
+
+    lista.cards = novaLista;
+
+    lista.save();
+
+    return res.json({ message: 'Card deletado com sucesso!' });
+});
+
+
+// FUNÇÕES AUXILIARES
+
+// função para encontrar o índice de um card dentro de uma lista pelo _id
+function findCardIndexById(lista, idCard) {
+    for (var i = 0; i < lista.cards.length; i++) {
+        if (lista.cards[i]._id == idCard) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 module.exports = router;

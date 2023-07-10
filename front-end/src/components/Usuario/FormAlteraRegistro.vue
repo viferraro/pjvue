@@ -17,13 +17,31 @@
                                 {{ usuario.email }}
                             </v-text-field>
 
-                            <v-text-field v-model="senha" label="Senha atual" type="password" />
+                            <v-text-field
+                                v-model="senha"
+                                :append-icon="showSenha ? 'mdi-eye' : 'mdi-eye-off'"
+                                :type="showSenha ? 'text' : 'password'" 
+                                label="Senha atual"
+                                @click:append="showSenha = !showSenha"
+                            />
 
-                            <v-text-field  v-model="novaSenha" label="Nova senha" type="password"/>     
+                            <v-text-field
+                                v-model="novaSenha"
+                                :append-icon="showNova ? 'mdi-eye' : 'mdi-eye-off'"
+                                :type="showNova ? 'text' : 'password'" 
+                                label="Nova senha"
+                                @click:append="showNova = !showNova"
+                            />     
 
-                            <v-text-field  v-model="senhaConfirmacao" label="Confirme a senha" type="password"/>           
+                            <v-text-field
+                                v-model="senhaConfirmacao"
+                                :append-icon="showConfirma ? 'mdi-eye' : 'mdi-eye-off'"
+                                :type="showConfirma ? 'text' : 'password'" 
+                                label="Confirme a senha"
+                                @click:append="showConfirma = !showConfirma"
+                            />           
 
-                            <v-btn color="primary" @click="atualizar">
+                            <v-btn color="primary" :loading="carregando"  @click="atualizar">
                                 Alterar
                             </v-btn>
                         </v-form>
@@ -49,12 +67,19 @@
             novaSenha: '',
             senhaConfirmacao: '',
             error: '',
+
+            carregando: false,
+            showSenha: false,
+            showNova: false,
+            showConfirma: false,
+
             }
         },
 
         methods: {
             atualizar() {
                 this.error = '';
+                this.carregando = true;
                 axios.put('http://localhost:3000/usuarios/' + this.usuario.email, 
                     {
                         nome: this.usuario.nome,
@@ -69,6 +94,7 @@
                     .catch((erro) => {
                         console.log("🚀 ~ file: FormAlteraRegistro.vue:68 ~ atualizar ~ erro:", erro)
                         this.error = erro.response.data.erro;
+                        this.carregando = false;
                     });
             },
         }

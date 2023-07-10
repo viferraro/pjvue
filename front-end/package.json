@@ -16,6 +16,7 @@
     "vue": "^2.7.14",
     "vue-loading-overlay": "3.0",
     "vue-router": "^2.8.1",
+    "vuedraggable": "^2.24.3",
     "vuetify": "^2.6.15"
   },
   "devDependencies": {
