@@ -1,16 +1,20 @@
 <template>
   <v-app>
     <v-navigation-drawer v-if="$root.credentials" app v-model="drawer">
-        <v-list nav>
-            <v-list-item-group active-class="deep-green--text text--accent-4">
-                <v-list-item>
-                    <v-list-item-title @click="homeQuadros">Quadros</v-list-item-title>
-                </v-list-item>
-                <v-list-item>
-                  <v-list-item-title @click="homeColecao">Coleção</v-list-item-title>
-                </v-list-item>
-            </v-list-item-group>
-        </v-list>
+      <v-list nav>
+        <v-list-item-group active-class="deep-green--text text--accent-4">
+          <v-list-item>
+            <v-list-item-title @click="homeQuadros">Quadros</v-list-item-title>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-title @click="homeColecao">Coleção</v-list-item-title>
+          </v-list-item>
+          <v-divider class="my-2"></v-divider>
+          <v-list-item>
+            <v-list-item-title @click="alteraRegistro">Configurações</v-list-item-title>
+          </v-list-item>
+        </v-list-item-group>
+      </v-list>
     </v-navigation-drawer>
 
     <v-app-bar app color="#BED9D9">
@@ -21,12 +25,19 @@
 
         <v-spacer></v-spacer>
 
-        <span v-if="$root.credentials" @click="alteraRegistro">
+        <span v-if="$root.credentials">
           Olá, {{ $root.credentials.nome }}.
           <router-link :to="{ name: 'change-password' }" replace>
-            <v-btn icon><v-icon>mdi-lock-reset</v-icon></v-btn>
+
           </router-link>
-          <v-btn icon @click="logout"><v-icon>mdi-logout</v-icon></v-btn>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn icon v-bind="attrs" v-on="on" @click="logout">
+                <v-icon>mdi-logout</v-icon>
+              </v-btn>
+            </template>
+            <span>Sair</span>
+          </v-tooltip>
         </span>
 
       </v-container>
@@ -60,7 +71,7 @@ export default {
       this.$router.replace('/');
     },
 
-    homeQuadros: function() {
+    homeQuadros: function () {
       this.$router.replace('/quadros/');
     },
 
@@ -69,7 +80,7 @@ export default {
 
     },
 
-    homeColecao: function() {
+    homeColecao: function () {
       this.$router.replace('/colecoes/');
     },
   },

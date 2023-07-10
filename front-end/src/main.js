@@ -2,7 +2,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import vuetify from './plugins/vuetify'
 import Router from 'vue-router'
-// import '../src/assets/.treco.png'
+import ControladorCRUD from './assets/controlador-crud.js'
 
 /* Páginas de login, Registro e homepage */
 import Login from './components/Usuario/FormLogin.vue'
@@ -22,6 +22,9 @@ import QuadroDetalhe from './components/Quadros/DetalhamentoQuadro.vue'
 /* Páginas de Colecoes */
 import Colecao from './components/Colecao/HomeColecoes.vue'
 import ColecaoForm from './components/Colecao/FormColecoes.vue'
+
+/* Controlador do cadastro de cards */
+var controladorCadastroCards = ControladorCRUD.criaControladorCRUD();
 
 /* Configuracao do router */
 Vue.config.productionTip = false
@@ -68,7 +71,8 @@ const router = new Router({
     {
       path: '/quadros/detalhar/:id',
       name: 'quadroDetalhamento',
-      component:QuadroDetalhe
+      component:QuadroDetalhe,
+      props: { 'controlador': controladorCadastroCards }
     },
     {
       path: '/colecoes/novo',
@@ -82,7 +86,7 @@ const router = new Router({
     },
 
     {
-      path: 'quadros/editar/:id',
+      path: '/quadros/editar/:id',
       name: 'editar',
       component: editar
     },

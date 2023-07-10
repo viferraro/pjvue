@@ -61,19 +61,19 @@
                                                         <v-row>
                                                             <v-col cols="12" md="6">
                                                                 <v-template>
-                                                                    <v-checkbox v-model="editavel"
+                                                                    <v-checkbox v-model="quadro.editavel"
                                                                         label="Editável"></v-checkbox>
                                                                 </v-template>
                                                             </v-col>
 
                                                             <v-col cols="12" md="6">
                                                                 <v-template>
-                                                                    <v-checkbox v-model="favorito"
+                                                                    <v-checkbox v-model="quadro.favorito"
                                                                         label="Favorito"></v-checkbox>
                                                                 </v-template>
                                                             </v-col>
                                                         </v-row>
-                                                        <v-btn color="primary" @click="atualizaQuadro(quadro._id)"
+                                                        <v-btn color="primary" @click="atualizaQuadro()"
                                                             :disabled="!quadro.titulo">
                                                             Salvar
                                                         </v-btn>
@@ -107,7 +107,8 @@
                                             <v-list v-for="item in 5" :key="item" :style="{ backgroundColor: corAjustada }">
                                                 <v-list-item border-bottom>
                                                     <v-list-item-content>
-                                                        <v-list-item-title :style="{ color: quadro.corTexto }">Lista {{ item
+                                                        <v-list-item-title :style="{ color: quadro.corTexto }">Lista {{
+                                                            item
                                                         }}
                                                         </v-list-item-title>
                                                     </v-list-item-content>
@@ -134,15 +135,8 @@ import axios from 'axios';
 export default {
 
     data() {
-
         return {
             quadro: null,
-
-            // nomeQuadro: this.quadro.titulo,
-            // corFundo: this.quadro.corFundo,
-            // corTexto: this.quadro.corTexto,
-            // editavel: false,
-            // favorito: false,
 
             menuFundo: false,
             menuTexto: false,
@@ -216,19 +210,18 @@ export default {
             // Retorna a cor clareada no formato hexadecimal
             return lightenedHex;
         },
-        atualizaQuadro: function (idQuadro) {
+
+        //função para recuperar um quadro específico
+        recuperaQuadro: function () {
+            this.quadro = null;
+            var idQuadro = this.$route.params.id;
+            console.log("🚀 ~ file: FormEditaQuadros.vue:216 ~ idQuadro:", idQuadro)
             this.loading = true;
-            axios.put(this.httpOptions.baseURL + '/quadros/' + idQuadro, {
-                titulo: this.quadro.titulo,
-                corFundo: this.quadro.corFundo,
-                corTexto: this.quadro.corTexto,
-                editavel: this.quadro.editavel,
-                favorito: this.quadro.favorito
-            }, this.httpOptions)
+            axios.get('http://localhost:3000/quadros/' + idQuadro, this.httpOptions)
                 .then(response => {
-                    console.log(response)
-                    this.errorMessage = ""
-                    this.$router.push({ name: 'Quadros' })
+                    console.log(response.data)
+                    this.loading = false;
+                    this.quadro = response.data;
                 })
                 .catch(error => {
                     this.loading = false;
@@ -236,45 +229,25 @@ export default {
                 })
         },
 
-        recuperaQuadro: function (idQuadro) {
+        //função para atualizar um quadro específico
+        atualizaQuadro: function () {
             this.loading = true;
-            axios.get(this.httpOptions.baseURL + '/quadros' + idQuadro, this.httpOptions)
+            axios.put('http://localhost:3000/quadros/' + this.quadro._id, this.httpOptions)
                 .then(response => {
-                    console.log(response.data.idQuadro)
+                    console.log(response.data)
                     this.loading = false;
-                    this.quadro = response.data.idQuadro;
+                    this.quadro = response.data;
                 })
                 .catch(error => {
                     this.loading = false;
                     this.error = error;
                 })
-
         },
+    },
+    mounted() {
 
-        criaQuadro() {
-            axios.post(this.httpOptions.baseURL + '/quadros', {
-                titulo: this.nomeQuadro,
-                corFundo: this.corFundo,
-                corTexto: this.corTexto,
-                editavel: this.editavel,
-                favorito: this.favorito
-            }, this.httpOptions)
-                .then(response => {
-                    console.log(response)
-                    this.errorMessage = ""
-                    this.$router.replace('/quadros')
-                })
-                .catch(error => {
-                    console.log(error)
-                    this.errorMessage = error.response.data.erro
-                });
-        },
-
-        mounted() {
-
-            this.recuperaQuadro(this.$route.params.idQuadro);
-            console.log(this.quadro)
-        }
+        this.recuperaQuadro();
     }
-}   
+}
+
 </script>
