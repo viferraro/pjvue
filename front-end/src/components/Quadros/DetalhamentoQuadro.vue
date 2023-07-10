@@ -15,9 +15,9 @@
 
                 <v-divider class="my-2"></v-divider>
 
-                <v-list-item link color="grey-lighten-4" @click="Testa">
+                <v-list-item link color="grey-lighten-4" v-if="permiteEdicao(quadro.editavel)" @click="abrirNovaLista(quadro)">
                   <v-list-item-title>
-                    Criar novo quadro
+                    Criar nova lista
                   </v-list-item-title>
                 </v-list-item>
               </v-list>
@@ -76,16 +76,6 @@
                                       class="headline mb-1"
                                       :style="{ color: quadro.corTexto }"
                                   >
-                                    <v-btn
-                                        icon
-                                        @click="toggleFavorito(quadro)"
-                                    >
-                                      <v-icon
-                                          :color="emailFavorito(quadro) ? 'yellow' : 'grey'"
-                                      >
-                                        mdi-star
-                                      </v-icon>
-                                    </v-btn>
 
                                     {{ lista.titulo }}
 
@@ -102,12 +92,12 @@
                                                 icon
                                                 v-on="on"
                                                 color="black"
-                                                @click="detalharQuadro(quadro._id)"
+                                                @click="detalharLista(lista._id)"
                                             >
                                               <v-icon>mdi-eye-circle</v-icon>
                                             </v-btn>
                                           </template>
-                                          <span>Detalhar quadro</span>
+                                          <span>Detalhar lista</span>
                                         </v-tooltip>
 
                                         <v-show v-if="permiteEdicao(quadro.editavel)">
@@ -117,12 +107,12 @@
                                                   icon
                                                   v-on="on"
                                                   color="warning"
-                                                  @click="editarQuadro(quadro._id)"
+                                                  @click="editarLista(lista._id)"
                                               >
                                                 <v-icon>mdi-pencil-circle</v-icon>
                                               </v-btn>
                                             </template>
-                                            <span>Editar quadro</span>
+                                            <span>Editar lista</span>
                                           </v-tooltip>
 
                                           <v-tooltip bottom>
@@ -131,28 +121,15 @@
                                                   icon
                                                   v-on="on"
                                                   color="error"
-                                                  @click="abrirExcluir(quadro)"
+                                                  @click="abrirExcluir(lista)"
                                               >
                                                 <v-icon>mdi-delete-circle</v-icon>
                                               </v-btn>
                                             </template>
-                                            <span>Excluir quadro</span>
+                                            <span>Excluir lista</span>
                                           </v-tooltip>
                                         </v-show>
 
-                                        <v-tooltip bottom>
-                                          <template v-slot:activator="{ on }">
-                                            <v-btn
-                                                icon
-                                                v-on="on"
-                                                color="success"
-                                                @click="abrirCompartilhar(quadro)"
-                                            >
-                                              <v-icon>mdi-share-circle</v-icon>
-                                            </v-btn>
-                                          </template>
-                                          <span>Compartilhar quadro</span>
-                                        </v-tooltip>
                                       </div>
                                     </v-expand-transition>
 
@@ -189,12 +166,12 @@
                                           v-if="permiteEdicao(quadro.editavel)"
                                           v-on="on"
                                           :style="{ color: quadro.corTexto }"
-                                          @click="abrirNovaLista(quadro)"
+                                          @click="abrirNovoCard(quadro)"
                                       >
                                         <v-icon>mdi-plus-circle</v-icon>
                                       </v-btn>
                                     </template>
-                                    <span>Nova lista</span>
+                                    <span>Novo card</span>
                                   </v-tooltip>
                                 </v-list-item-title>
                               </v-list-item-content>
@@ -222,59 +199,20 @@
               </v-col>
             </div>
 
-
-
-
           </v-col>
           <!-- </v-row> -->
         </v-row>
       </v-container>
 
-      <!-- Tela de confirmação de exclusão de quadro -->
+      <!-- Tela de confirmação de exclusão de lista -->
       <v-dialog v-model="dialogExcluir" max-width="500px">
         <v-card>
           <v-card-title class="headline">Excluir quadro</v-card-title>
-          <v-card-text>Tem certeza que deseja excluir o quadro?</v-card-text>
+          <v-card-text>Tem certeza que deseja excluir a lista?</v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="blue darken-1" text @click="dialogExcluir = false">Cancelar</v-btn>
-            <v-btn color="red darken-1" text @click="excluirQuadro(quadroEscolhido._id)">Excluir</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-
-      <!-- Tela de compartilhamento de quadro -->
-      <v-dialog v-model="dialogCompartilhar" max-width="500px">
-        <v-card v-model="quadroEscolhido">
-          <v-card-title class="headline">Compartilhar quadro</v-card-title>
-          <v-card-text>
-            <v-select
-                v-model="emailsSelecionados"
-                :items="usuarios"
-                item-text="email"
-                item-value="email"
-                label="Usuário"
-                outlined
-                dense
-                chips
-                deletable-chips
-                multiple
-            ></v-select>
-          </v-card-text>
-
-          <v-col>
-            <v-show v-if="usuarioEdita">
-              <v-label class="text-left">Tornar quadro editável?</v-label>
-              <v-radio-group v-model="edita" row>
-                <v-radio label="Sim" value="true"></v-radio>
-                <v-radio label="Não" value="false"></v-radio>
-              </v-radio-group>
-            </v-show>
-          </v-col>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="blue darken-1" text @click="dialogCompartilhar = false, emailsSelecionados = []">Cancelar</v-btn>
-            <v-btn color="green darken-1" text @click="compartilharQuadro()">Compartilhar</v-btn>
+            <v-btn color="red darken-1" text @click="excluirLista(listaEscolhida._id)">Excluir</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -295,6 +233,26 @@
             <v-spacer></v-spacer>
             <v-btn color="blue darken-1" text @click="dialogNovaLista = false, novaListaTitulo=''">Cancelar</v-btn>
             <v-btn color="green darken-1" text @click="criarLista()">Criar</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <!-- Tela de inclusão de card na lista -->
+      <v-dialog v-model="dialogNovoCard" max-width="500px">
+        <v-card>
+          <v-card-title class="headline">Novo card</v-card-title>
+          <v-card-text>
+            <v-text-field
+                v-model="novoCardTitulo"
+                label="Título do card"
+                outlined
+                dense
+            ></v-text-field>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" text @click="dialogNovoCard = false, novoCardTitulo=''">Cancelar</v-btn>
+            <v-btn color="green darken-1" text @click="criarCard()">Criar</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -320,13 +278,15 @@ export default {
       emailsSelecionados: [],
       usuarioEdita: false,
       edita: false,
-      favorito: false,
       novaListaTitulo: "",
+      novoCardTitulo:"",
 
       dialogExcluir: false,
       dialogCompartilhar: false,
       dialogNovaLista: false,
+      dialogNovoCard: false,
       quadroEscolhido: null,
+      listaEscolhida:null,
 
       lightenAmount: 0.3,
       error: "",
@@ -342,7 +302,6 @@ export default {
       },
     }
   },
-
 
   components: {
     Loading,
@@ -376,17 +335,6 @@ export default {
       return lightenedHex;
     },
 
-    // Retorna se o quadro é favorito do usuário
-    emailFavorito: function(quadro) {
-      var email = this.$root.credentials.email;
-
-      if(quadro.favorito.includes(email)){
-        return true;
-      }
-      else{
-        return false;
-      }
-    },
 
     // Retorna se o quadro é editável pelo usuário
     permiteEdicao: function(editaveis){
@@ -457,9 +405,6 @@ export default {
     //         this.error = error;
     //       });
     // },
-    Testa: function (){
-      console.log("FInalmente",this.quadro);
-    },
 
     // Recupera os usuários cadastrados
     recuperaUsuarios: function() {
@@ -467,29 +412,6 @@ export default {
           .then(response => {
             var dados = response.data.items;
             this.usuarios = dados.filter(usuario => usuario.email != this.$root.credentials.email);
-          })
-          .catch(error => {
-            this.error = error;
-          });
-    },
-
-    // Altera o status de favorito do quadro
-    toggleFavorito: function(quadro) {
-      var emailUsuario = this.$root.credentials.email;
-
-      if(quadro.favorito.includes(emailUsuario)){
-        quadro.favorito = quadro.favorito.filter(email => email != emailUsuario);
-      }
-      else{
-        quadro.favorito.push(emailUsuario);
-      }
-
-      console.log("🚀 ~ file: HomeQuadros.vue:144 ~ favoritos", quadro.favorito)
-      axios.put(this.httpOptions.baseURL +'/quadros/'+ quadro._id, {
-            favorito: quadro.favorito
-          },
-          this.httpOptions)
-          .then(() => {
           })
           .catch(error => {
             this.error = error;
@@ -528,64 +450,60 @@ export default {
           });
     },
 
-    // Acessa a página de um novo quadro
-    novoQuadro: function() {
-      this.$router.replace("/quadros/novo")
+    // Abre a janela de formulário para inclusão de card
+    abrirNovoCard: function(lista) {
+      this.listaEscolhida = lista;
+      this.dialogNovoCard = true;
     },
+    // Inclui um novo card na lista
+    criarCard: function() {
+      var idLista = this.listaEscolhida._id;
+      var titulo = this.novoCardTitulo;
 
-    // Acessa a página para editar um quadro
-    editarQuadro: function(idQuadro) {
-      this.$router.replace("/quadros/"+ idQuadro)
-    },
-
-    // Acessa a página de detalhamento de um quadro
-    detalharQuadro: function(idQuadro) {
-      this.$router.replace("/quadros/detalhar/"+ idQuadro)
-    },
-
-    // Abre a janela de formulário para compartilhar o quadro
-    abrirCompartilhar: function(quadro) {
-      console.log("🚀 ~ file: HomeQuadros.vue:397 ~ quadro:", quadro)
-
-      this.quadroEscolhido = quadro;
-
-      var email = this.$root.credentials.email;
-
-      this.usuarioEdita = this.quadroEscolhido.editavel.includes(email);
-
-      this.dialogCompartilhar = true;
-    },
-
-    // Compartilha o quadro com outro usuário
-    compartilharQuadro: function() {
-      axios.post(this.httpOptions.baseURL +'/usuarios/compartilhar/' + this.quadroEscolhido._id, {
-            usuarios: this.usuarios
+      axios.post(this.httpOptions.baseURL +'/cards', {
+            idLista: idLista,
+            titulo: titulo
           },
           this.httpOptions)
-          .then(() => {
-            console.log("Quadro compartilhado com sucesso!");
-            this.quadroEscolhido = "";
-            this.dialogCompartilhar = false;
+          .then(response => {
+            this.listaEscolhida.cards.push(response.data.item);
+            this.novoCardTitulo = "";
+            this.quadro.listas = this.quadros.listas.map(lista => {
+              if(lista._id == idLista){
+                lista = this.listaEscolhida;
+              }
+            });
+            this.dialogNovaLista = false;
             this.recuperaQuadros();
           })
           .catch(error => {
-            this.dialogCompartilhar = false;
             this.error = error;
           });
     },
 
+
+    // Acessa a página para editar uma lista
+    editarLista: function(idLista) {
+      this.$router.replace("/listas/"+ idLista)
+    },
+
+    // Acessa a página de detalhamento de uma lista
+    detalharLista: function(idLista) {
+      this.$router.replace("/listas/detalhar/"+ idLista)
+    },
+
     // Abre a janela de confirmação para excluir o quadro
-    abrirExcluir: function(quadro) {
-      this.quadroEscolhido = quadro;
+    abrirExcluir: function(lista) {
+      this.listaEscolhida = lista;
       this.dialogExcluir = true;
     },
 
-    // Exclui o quadro
-    excluirQuadro: function(idQuadro) {
+    // Exclui a lista
+    excluirLista: function(idLista) {
       this.dialogExcluir = false;
-      axios.delete(this.httpOptions.baseURL +'/quadros/'+ idQuadro, this.httpOptions)
+      axios.delete(this.httpOptions.baseURL +'/listas/'+ idLista, this.httpOptions)
           .then(() => {
-            this.quadroEscolhido = null;
+            this.listaEscolhida = null;
             this.recuperaQuadros();
           })
           .catch(error => {
