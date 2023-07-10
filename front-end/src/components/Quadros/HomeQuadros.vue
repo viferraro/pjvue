@@ -438,7 +438,7 @@ export default {
     // Compartilha o quadro com outro usuário
     compartilharQuadro: function () {
       axios.post(this.httpOptions.baseURL + '/usuarios/compartilhar/' + this.quadroEscolhido._id, {
-        usuarios: this.usuarios
+        usuarios: [this.usuarios.email]
       },
         this.httpOptions)
         .then(() => {

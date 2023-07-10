@@ -246,17 +246,17 @@ router.post('/esqueci', async function (req, res) {
         },
         to: usuario.email,
         subject: "Recuperação de senha",
-        templateId: "d-523aad574cb0427faef95bb2158127af",
-        dynamicTemplateData : {
+        templateId: "d-a8bcdf6a9dbc442da41907b53b5b7216",
+        dynamicTemplateData: {
             button_link: link
         }
         // html: contents
     };
 
-    sg.send(email, function(err, json){
-        if(err){
+    sg.send(email, function (err, json) {
+        if (err) {
             res.json(err);
-        }else{
+        } else {
             res.json({ message: "OK" });
         }
     }
@@ -368,24 +368,24 @@ router.post('/troca', async function (req, res) {
 
 
 // endpoint para compartilhar um determinado quadro com uma lista de usuários
-router.post('/compartilhar/:idQuadro', async function(req, res){
-    
+router.post('/compartilhar/:idQuadro', async function (req, res) {
+
     var claims = auth.verifyToken(req, res);
-    
-    if(!claims){
-        res.status(401).json({ message : "Usuário não encontrado" });
+
+    if (!claims) {
+        res.status(401).json({ message: "Usuário não encontrado" });
         return;
     }
-    
+
     var idQuadro = req.params.idQuadro;
     var emails = req.body.emails;
 
-    if(!idQuadro){
+    if (!idQuadro) {
         res.status(400).json({ erro: 'Dados incompletos' });
         return;
     }
 
-    if(!emails || emails.length == 0){
+    if (!emails || emails.length == 0) {
         res.status(400).json({ erro: 'Dados incompletos' });
         return;
     }
@@ -394,8 +394,8 @@ router.post('/compartilhar/:idQuadro', async function(req, res){
     var quadro = await db.Quadro.findOne({ _id: idQuadro }).exec();
     var usuario = await db.Usuario.findOne({ email: claims.email }).exec();
     var destinatarios = await getDestinatarios(emails);
-    
-    if(!quadro){
+
+    if (!quadro) {
         res.status(400).json({ erro: 'Quadro não encontrado' });
         return;
     }
@@ -410,10 +410,10 @@ router.post('/compartilhar/:idQuadro', async function(req, res){
         }
     })
 
-    var link = config.frontend.hostname + "quadroCompartilhado/" + quadro._id;
-    
+    var link = config.frontend.hostname;
+
     for (var i = 0; i < destinatarios.length; i++) {
-        try{            
+        try {
             console.log("🚀 ~ file: usuarios.js:409 ~ router.post ~ link:", link)
             var destinatario = destinatarios[i];
             console.log("🚀 ~ file: usuarios.js:413 ~ router.post ~ destinatario:", destinatario)
@@ -424,25 +424,25 @@ router.post('/compartilhar/:idQuadro', async function(req, res){
                 },
                 to: destinatario.email,
                 subject: "Convite para acompanhar quadro",
-                templateId: "d-a03af7299e224fea9334ae6f401a811e",
+                templateId: "d-f5a5b386ffc448f48bc2122c8c658a88",
                 dynamicTemplateDatabase: {
-                    urlSeguir: link
+                    buttonCpt: link
                 }
             }
-    
+
             sg.send(email);
         }
-        catch(err){
+        catch (err) {
             console.log(err);
             res.status(400).json({ erro: 'Erro ao enviar email' });
-        }        
+        }
     }
 
     res.json({ message: 'Email enviado com sucesso' });
 });
-    
 
-    
+
+
 
 //
 // Funções auxiliares
@@ -486,7 +486,7 @@ function verificaValidadeTokenLogin(dateToken, maximoHoras) {
 async function getDestinatarios(emails) {
     var db = await models.connect();
     var usuarios = await db.Usuario.find({ email: { $in: emails } }).exec();
-    
+
     return usuarios;
 }
 
