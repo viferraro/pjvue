@@ -78,16 +78,20 @@ router.post('/', async function(req, res) {
 router.put('/:id', async function(req, res) {
     var db = await models.connect();
     var lista = await db.Lista.findById(req.params.id);    
-    var card = findCardIndexById(lista, req.body._id);    
+    var conteudo = req.body.conteudoCard;    
+    console.log("🚀 ~ file: listas.js:82 ~ router.put ~ card:", conteudo)
 
     if (!lista) {
         res.json({ message: 'Lista não encontrada!' });
         return;
     }
     
-    if (req.body.conteudo !== lista.cards.conteudo) {
-        lista.cards.conteudo = req.body.conteudo;
-        lista.cards.dtUltimaEdicao = Date.now();
+    if (conteudo !== "" ) {
+        lista.cards.push({
+            conteudo: conteudo,
+            dtCriacao: Date.now(),
+            dtUltimaEdicao: Date.now()
+        });
     }
 
     lista.titulo = req.body.titulo || lista.titulo;
@@ -101,6 +105,7 @@ router.put('/:id/card', async function(req, res) {
     var db = await models.connect();
     var lista = await db.Lista.findById(req.params.id);    
     var cardNovo = findCardIndexById(lista, req.body._id);
+    console.log("🚀 ~ file: listas.js:103 ~ router.put ~ lista:", lista)
     console.log("🚀 ~ file: listas.js:111 ~ router.put ~ req.body:", req.body)
 
     if (!lista) {
@@ -142,17 +147,20 @@ router.delete('/:id', async function(req, res) {
 
 
 // endpoint para deletar um card de uma lista
-router.delete('/:id/card', async function(req, res) {
+router.delete('/:id/card/:idCard', async function(req, res) {
     var db = await models.connect();
     var lista = await db.Lista.findById(req.params.id);
+    var idCard = req.params.idCard;
 
     if (!lista) {
         res.json({ message: 'Lista não encontrada!' });
         return;
     }
 
-    console.log("🚀 ~ file: listas.js:155 ~ router.delete ~ req.body._id:", req.body._id)
-    var novaLista = lista.cards.filter(card => card._id !== req.body._id);
+    console.log("🚀 ~ file: listas.js:155 ~ router.delete ~ idCard:", idCard)
+    var novaLista = lista.cards.filter(card => {
+        return card._id != idCard;
+    });
 
     lista.cards = novaLista;
 
