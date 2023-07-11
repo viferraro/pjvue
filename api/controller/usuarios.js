@@ -14,14 +14,12 @@ const auth = require("../auth/auth.js");
 
 // endpoint para retornar uma lista de usuários paginada	
 router.get('/', async function (req, res) {
-    var page = req.query.page || 1;
-    var itemsPerPage = req.query.itemsPage || 5;
 
     var db = await models.connect();
     var queryCount = db.Usuario.find({});
     var totalItems = await queryCount.count();
 
-    var queryList = db.Usuario.find({}).limit(itemsPerPage).skip(itemsPerPage * (page - 1));
+    var queryList = db.Usuario.find({});
     var items = await queryList.exec();
 
     res.json({ items, totalItems });
@@ -123,8 +121,8 @@ router.put('/:email', async function (req, res) {
     if (body.quadro !== null) {
         usuario.quadros.push(body.quadro);
     }
-    usuario.nome = nome;
-    usuario.senha = bcrypt.hashSync(senhaNova, 10);
+    usuario.nome = nome !== "" ? nome : usuario.nome;
+    usuario.senha = senhaNova !== "" ? bcrypt.hashSync(senhaNova, 10) : usuario.senha;
     usuario.dataAtualizacao = new Date();
 
     await usuario.save();
@@ -225,7 +223,7 @@ router.post('/esqueci', async function (req, res) {
 
     usuario.dataAtualizacao = new Date();
     usuario.token = geraToken(32);
-    usuario.dataTokenSenha
+    usuario.dataTokenSenha = new Date();
     await usuario.save();
 
     let transporter = nodemailer.createTransport({
@@ -379,7 +377,6 @@ router.post('/compartilhar/:idQuadro', async function (req, res) {
     }
 
     var idQuadro = req.params.idQuadro;
-    console.log("🚀 ~ file: usuarios.js:382 ~ idQuadro:", idQuadro)
     var emails = req.body.emails;
 
     if (!idQuadro) {
@@ -404,43 +401,39 @@ router.post('/compartilhar/:idQuadro', async function (req, res) {
 
     sg.setApiKey(config.sendGrid.apiKey);
 
-    let transporter = nodemailer.createTransport({
-        service: 'SendGrid',
-        auth: {
-            user: config.sendGrid.email,
-            pass: config.sendGrid.apiKey
-        }
-    })
+    // Adicionando o link epsecífico do quadro para cada destinatário
+    destinatarios.forEach(destinatario => {
+        var email = destinatario.email;
+        destinatario.link = `${config.frontend.hostname}/quadros/compartilhar?email=${{ email }}&idQuadro=${{ idQuadro }}`;
+    });
 
-    var link = config.frontend.hostname;
+    // Enviar os e-mails em lote
+    Promise.all(
+        destinatarios.map(destinatario => {
+            const { email, link } = destinatario;
 
-    for (var i = 0; i < destinatarios.length; i++) {
-        try {
-            console.log("🚀 ~ file: usuarios.js:409 ~ router.post ~ link:", link)
-            var destinatario = destinatarios[i];
-            console.log("🚀 ~ file: usuarios.js:413 ~ router.post ~ destinatario:", destinatario)
-            var email = {
+            const msg = {
                 from: {
                     name: "Equipe TaskVerse",
                     email: config.sendGrid.fromEmail
                 },
-                to: destinatario.email,
-                subject: "Convite para acompanhar quadro",
+                to: email,
+                subject: "Compartilhamento de quadro",
                 templateId: "d-f5a5b386ffc448f48bc2122c8c658a88",
-                dynamicTemplateDatabase: {
-                    buttonCpt: link + '?idQuadro=' + idQuadro + '&emailUsuario=' + destinatario.email
+                dynamicTemplateData: {
+                    buttonCpt: link
                 }
-            }
+            };
 
-            sg.send(email);
-        }
-        catch (err) {
-            console.log(err);
-            res.status(400).json({ erro: 'Erro ao enviar email' });
-        }
-    }
-
-    res.json({ message: 'Email enviado com sucesso' });
+            return sg.send(msg);
+        })
+    )
+        .then(() => {
+            res.json({ message: 'E-mails enviados com sucesso' });
+        })
+        .catch(error => {
+            res.status(500).json({ erro: 'Erro ao enviar e-mails ' + error });
+        });
 });
 
 

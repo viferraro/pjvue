@@ -76,7 +76,7 @@ const router = new Router({
       props: { 'controlador': controladorCadastroCards }
     },
     {
-      path: '/quadros/compartilhar/:id',
+      path: '/quadros/compartilhar',
       name: 'compartilhaQuadro',
       component: CompartilhaQuadro,
     },

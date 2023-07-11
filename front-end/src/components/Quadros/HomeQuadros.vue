@@ -91,7 +91,7 @@
                                           <v-tooltip bottom>
                                             <template v-slot:activator="{ on }">
                                               <v-btn icon v-on="on" color="success"
-                                                @click="compartilharQuadro(quadro._id)">
+                                                @click="abrirCompartilhar(quadro)">
                                                 <v-icon>mdi-share-circle</v-icon>
                                               </v-btn>
                                             </template>
@@ -175,7 +175,7 @@
       </v-dialog>
 
       <!-- Tela de compartilhamento de quadro -->
-      <!-- <v-dialog v-model="dialogCompartilhar" max-width="500px">
+      <v-dialog v-model="dialogCompartilhar" max-width="500px">
         <v-card v-model="quadroEscolhido">
           <v-card-title class="headline">Compartilhar quadro</v-card-title>
           <v-card-text>
@@ -202,7 +202,7 @@
             Compartilhamento realizado com sucesso!
           </v-alert>
         </v-card>
-      </v-dialog> -->
+      </v-dialog>
 
       <!-- Tela de inclusão de lista no quadro -->
       <v-dialog v-model="dialogNovaLista" max-width="500px">
@@ -434,34 +434,34 @@ export default {
     },
 
     // Abre a janela de formulário para compartilhar o quadro
-    // abrirCompartilhar: function (quadro) {
-    //   console.log("🚀 ~ file: HomeQuadros.vue:397 ~ quadro:", quadro)
-    //   this.usuariosSelecionados = [];
-    //   this.quadroEscolhido = quadro;
-    //   var email = this.$root.credentials.email;
-    //   this.usuarioEdita = this.quadroEscolhido.editavel.includes(email);
-    //   this.dialogCompartilhar = true;
-    // },
+    abrirCompartilhar: function (quadro) {
+      console.log("🚀 ~ file: HomeQuadros.vue:397 ~ quadro:", quadro)
+      this.usuariosSelecionados = [];
+      this.quadroEscolhido = quadro;
+      var email = this.$root.credentials.email;
+      this.usuarioEdita = this.quadroEscolhido.editavel.includes(email);
+      this.dialogCompartilhar = true;
+    },
 
     // Compartilha o quadro com outro usuário
-    // compartilharQuadro: function () {
-    //   axios.post(this.httpOptions.baseURL + '/usuarios/compartilhar/' + this.quadroEscolhido._id, {
-    //     usuarios: this.emailsSelecionados
-    //   },
-    //     this.httpOptions)
-    //     .then(() => {
-    //       this.quadroEscolhido = null;
-    //       this.dialogCompartilhar = false;
-    //       this.recuperaQuadros();
-    //       this.sucesso = true;
-    //       console.log("Quadro compartilhado com sucesso!");
-    //       this.$router.replace("/quadros/");
-    //     })
-    //     .catch(error => {
-    //       this.dialogCompartilhar = false;
-    //       this.error = error;
-    //     });
-    // },
+    compartilharQuadro: function () {
+      axios.post(this.httpOptions.baseURL + '/usuarios/compartilhar/' + this.quadroEscolhido._id, {
+        usuarios: this.emailsSelecionados
+      },
+        this.httpOptions)
+        .then(() => {
+          this.quadroEscolhido = null;
+          this.dialogCompartilhar = false;
+          this.recuperaQuadros();
+          this.sucesso = true;
+          console.log("Quadro compartilhado com sucesso!");
+          this.$router.replace("/quadros/");
+        })
+        .catch(error => {
+          this.dialogCompartilhar = false;
+          this.error = error;
+        });
+    },
 
     // Abre a janela de confirmação para excluir o quadro
     abrirExcluir: function (quadro) {
