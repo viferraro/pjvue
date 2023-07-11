@@ -18,6 +18,7 @@ import Quadro from './components/Quadros/HomeQuadros.vue'
 import QuadroForm from './components/Quadros/FormQuadros.vue'
 import editar from './components/Quadros/FormEditaQuadros.vue'
 import QuadroDetalhe from './components/Quadros/DetalhamentoQuadro.vue'
+import CompartilhaQuadro from './components/Quadros/CompartilhaQuadro.vue'
 
 /* Páginas de Colecoes */
 import Colecao from './components/Colecao/HomeColecoes.vue'
@@ -71,8 +72,13 @@ const router = new Router({
     {
       path: '/quadros/detalhar/:id',
       name: 'quadroDetalhamento',
-      component:QuadroDetalhe,
+      component: QuadroDetalhe,
       props: { 'controlador': controladorCadastroCards }
+    },
+    {
+      path: '/quadros/compartilhar',
+      name: 'compartilhaQuadro',
+      component: CompartilhaQuadro,
     },
     {
       path: '/colecoes/novo',
