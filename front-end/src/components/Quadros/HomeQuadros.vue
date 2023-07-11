@@ -48,8 +48,8 @@
                                 <v-col cols="10" justify="space-between">
                                   <v-hover v-slot="{ hover }">
                                     <v-list-item-title class="headline mb-1" :style="{ color: quadro.corTexto }">
-                                      <v-btn icon @click="toggleFavorito(quadro)">
-                                        <v-icon :color="emailFavorito(quadro) ? 'yellow' : 'grey'">
+                                      <v-btn :style="{ backgroundColor: corAjustada(quadro.corFundo) }" icon @click="toggleFavorito(quadro)">
+                                        <v-icon :color="emailFavorito(quadro) ? 'yellow' : 'darken grey'">
                                           mdi-star
                                         </v-icon>
                                       </v-btn>

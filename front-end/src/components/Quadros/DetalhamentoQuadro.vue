@@ -24,10 +24,20 @@
                 <div class=" fill-height justify-center">
                       <v-card class="mx-auto" width="400" elevation="15" :style="{ backgroundColor: quadro.corFundo }">
                           <v-card-title class="headline" :style="{ color: quadro.corTexto }">
-                            <v-row justify="space-between">
+                            <v-row justify="space-between" :style="{ backgroundColor: corAjustada(quadro.corFundo), padding:'2%' }" class="rounded-shape">
                             {{ lista.titulo }}
 
                             <v-show v-if="permiteEdicao(quadro.editavel)">
+
+                              <v-tooltip bottom>
+                                <template v-slot:activator="{ on }">
+                                  <v-btn icon v-on="on" color="success" @click="abrirAdicionarCard(lista)">
+                                    <v-icon>mdi-plus-circle</v-icon>
+                                  </v-btn>
+                                </template>
+                                <span>Adicionar card</span>
+                              </v-tooltip>
+
                               <v-tooltip bottom>
                                 <template v-slot:activator="{ on }">
                                   <v-btn icon v-on="on" color="warning" @click="abrirEditarLista(lista)">
@@ -86,28 +96,6 @@
                 </v-container>
               </v-card-text>
 
-              <!-- Adicionando um v-radio com a opção de incluir um quadro com seu conteúdo -->
-              <v-card-text>
-                <v-container>
-                  <v-row>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-label>Adicionar um card?</v-label>
-                      <v-radio-group v-model="adicionaCard" row mandatory>
-                        <v-radio label="Sim" value="true" ></v-radio>
-                        <v-radio label="Não" value="false"></v-radio>
-                      </v-radio-group>
-                    </v-col>
-
-                    <!-- Exibindo o v-textarea para incluir o conteúdo do card caso adicionaCard seja true -->
-                    <v-col cols="12" sm="6" md="8" v-if="adicionaCard === 'true'">
-                      <v-textarea v-model="cardEditado.conteudo" label="Conteúdo"></v-textarea>
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </v-card-text>
-
-
-
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="blue darken-1" text @click="dialogLista = false, resetarVariaveis">Cancelar</v-btn>
@@ -161,7 +149,7 @@
                 <v-spacer></v-spacer>
                 <v-btn color="blue darken-1" text @click="dialogCard = false, resetarVariaveis">Cancelar</v-btn>
                 <v-btn color="blue darken-1" text @click="atualizaCard">Salvar</v-btn>
-                <v-btn color="error" text @click="deleteItem">Excluir</v-btn>
+                <!-- <v-btn color="error" text @click="deleteItem">Excluir</v-btn> -->
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -174,13 +162,14 @@
 
 <script>
   import axios from 'axios';
+  import Loading from 'vue-loading-overlay';
 
   export default {
     
     data() {
         return {
 
-            loading: false,
+            loading: true,
             menuFundo: false,
             menuTexto: false,
             lightenAmount: 0.3,
@@ -210,7 +199,11 @@
                 }
             },
         }
-    },      
+    },   
+    
+    components: {
+      Loading,
+    },
 
     methods: {
 
@@ -278,15 +271,12 @@
         atualizaLista: function(){
             this.loading = true;
             var lista = this.listaEditada;
-            var conteudoNovo = this.conteudoNovo;
-            console.log("🚀 ~ file: DetalhamentoQuadro.vue:271 ~ card:", conteudoNovo)
+            
             axios.put(this.httpOptions.baseURL + '/listas/' + lista._id, {
-              titulo: lista.titulo,
-              conteudoCard: conteudoNovo
+              titulo: this.novoTitulo 
             })
             .then(() => {
-                this.dialog = false;
-                this.loading = false;
+                this.dialogLista = false;
                 this.recuperaListas();
                 this.resetarVariaveis();
             })
