@@ -31,15 +31,14 @@
               <loading :active.sync="loading" :can-cancel="false" :is-full-page="true"
                 :color="this.$root.config.corSecundaria" :loader="'dots'"></loading>
             </v-row>
-            <p class="error pa-1 mb-8" v-if="error">{{error}}</p>
+            <p class="error pa-1 mb-8" v-if="error">{{ error }}</p>
 
 
             <v-show v-if="!loading && quadros.length > 0">
               <v-sheet class="mx-auto" elevation="8" max-width="100%">
                 <v-slide-group show-arrows class="pa-4" name="slide-group-quadros">
                   <v-slide-group-item v-for="quadro in quadros" :key="quadro._id" name="slide-item-quadros">
-                    <v-card color="grey-lighten-1" :class="['ma-4']" max-height="100%"
-                      width="344">
+                    <v-card color="grey-lighten-1" :class="['ma-4']" max-height="100%" width="344">
                       <div class=" fill-height justify-center">
                         <v-card class="mx-auto" width="344" elevation="15" :style="{ backgroundColor: quadro.corFundo }">
                           <v-list-item>
@@ -57,7 +56,8 @@
                                       {{ quadro.titulo }}
 
                                       <v-expand-transition>
-                                        <div v-if="hover" class="d-flex transition-fast-in-fast-out " style="height: 100%;">
+                                        <div v-if="hover" class="d-flex transition-fast-in-fast-out "
+                                          style="height: 100%;">
 
                                           <v-tooltip bottom>
                                             <template v-slot:activator="{ on }">
@@ -90,7 +90,8 @@
 
                                           <v-tooltip bottom>
                                             <template v-slot:activator="{ on }">
-                                              <v-btn icon v-on="on" color="success" @click="abrirCompartilhar(quadro)">
+                                              <v-btn icon v-on="on" color="success"
+                                                @click="abrirCompartilhar(quadro)">
                                                 <v-icon>mdi-share-circle</v-icon>
                                               </v-btn>
                                             </template>
@@ -197,6 +198,9 @@
               @click="dialogCompartilhar = false, emailsSelecionados = []">Cancelar</v-btn>
             <v-btn color="green darken-1" text @click="compartilharQuadro()">Compartilhar</v-btn>
           </v-card-actions>
+          <v-alert v-if="sucesso" type="success">
+            Compartilhamento realizado com sucesso!
+          </v-alert>
         </v-card>
       </v-dialog>
 
@@ -236,6 +240,7 @@ export default {
       edita: false,
       favorito: false,
       novaListaTitulo: "",
+      sucesso: false,
 
       dialogExcluir: false,
       dialogCompartilhar: false,
@@ -423,30 +428,34 @@ export default {
       this.$router.replace("/quadros/detalhar/" + idQuadro)
     },
 
+    //função para direcionar o botão de compartilhar
+    compartilharQuadro: function (idQuadro) {
+      this.$router.replace("/quadros/compartilhar/" + idQuadro)
+    },
+
     // Abre a janela de formulário para compartilhar o quadro
     abrirCompartilhar: function (quadro) {
       console.log("🚀 ~ file: HomeQuadros.vue:397 ~ quadro:", quadro)
-
+      this.usuariosSelecionados = [];
       this.quadroEscolhido = quadro;
-
       var email = this.$root.credentials.email;
-
       this.usuarioEdita = this.quadroEscolhido.editavel.includes(email);
-
       this.dialogCompartilhar = true;
     },
 
     // Compartilha o quadro com outro usuário
     compartilharQuadro: function () {
       axios.post(this.httpOptions.baseURL + '/usuarios/compartilhar/' + this.quadroEscolhido._id, {
-        usuarios: this.usuarios
+        usuarios: this.emailsSelecionados
       },
         this.httpOptions)
         .then(() => {
-          console.log("Quadro compartilhado com sucesso!");
-          this.quadroEscolhido = "";
+          this.quadroEscolhido = null;
           this.dialogCompartilhar = false;
           this.recuperaQuadros();
+          this.sucesso = true;
+          console.log("Quadro compartilhado com sucesso!");
+          this.$router.replace("/quadros/");
         })
         .catch(error => {
           this.dialogCompartilhar = false;

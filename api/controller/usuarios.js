@@ -14,14 +14,12 @@ const auth = require("../auth/auth.js");
 
 // endpoint para retornar uma lista de usuários paginada	
 router.get('/', async function (req, res) {
-    var page = req.query.page || 1;
-    var itemsPerPage = req.query.itemsPage || 5;
 
     var db = await models.connect();
     var queryCount = db.Usuario.find({});
     var totalItems = await queryCount.count();
 
-    var queryList = db.Usuario.find({}).limit(itemsPerPage).skip(itemsPerPage * (page - 1));
+    var queryList = db.Usuario.find({});
     var items = await queryList.exec();
 
     res.json({ items, totalItems });
@@ -120,9 +118,11 @@ router.put('/:email', async function (req, res) {
     //     res.status(400).json({ erro: 'A senha nova não pode ser igual à senha anterior.' });
     //     return;
     // }
-
-    usuario.nome = nome;
-    usuario.senha = bcrypt.hashSync(senhaNova, 10);
+    if (body.quadro !== null) {
+        usuario.quadros.push(body.quadro);
+    }
+    usuario.nome = nome !== "" ? nome : usuario.nome;
+    usuario.senha = senhaNova !== "" ? bcrypt.hashSync(senhaNova, 10) : usuario.senha;
     usuario.dataAtualizacao = new Date();
 
     await usuario.save();
@@ -223,7 +223,7 @@ router.post('/esqueci', async function (req, res) {
 
     usuario.dataAtualizacao = new Date();
     usuario.token = geraToken(32);
-    usuario.dataTokenSenha
+    usuario.dataTokenSenha = new Date();
     await usuario.save();
 
     let transporter = nodemailer.createTransport({
@@ -246,17 +246,17 @@ router.post('/esqueci', async function (req, res) {
         },
         to: usuario.email,
         subject: "Recuperação de senha",
-        templateId: "d-523aad574cb0427faef95bb2158127af",
-        dynamicTemplateData : {
+        templateId: "d-a8bcdf6a9dbc442da41907b53b5b7216",
+        dynamicTemplateData: {
             button_link: link
         }
         // html: contents
     };
 
-    sg.send(email, function(err, json){
-        if(err){
+    sg.send(email, function (err, json) {
+        if (err) {
             res.json(err);
-        }else{
+        } else {
             res.json({ message: "OK" });
         }
     }
@@ -366,83 +366,78 @@ router.post('/troca', async function (req, res) {
     res.json({ message: 'Nova senha registrada' });
 });
 
-
 // endpoint para compartilhar um determinado quadro com uma lista de usuários
-router.post('/compartilhar/:idQuadro', async function(req, res){
-    
+router.post('/compartilhar/:idQuadro', async function (req, res) {
+
     var claims = auth.verifyToken(req, res);
-    
-    if(!claims){
-        res.status(401).json({ message : "Usuário não encontrado" });
+
+    if (!claims) {
+        res.status(401).json({ message: "Usuário não encontrado" });
         return;
     }
-    
+
     var idQuadro = req.params.idQuadro;
     var emails = req.body.emails;
 
-    if(!idQuadro){
+    if (!idQuadro) {
         res.status(400).json({ erro: 'Dados incompletos' });
         return;
     }
 
-    if(!emails || emails.length == 0){
+    if (!emails || emails.length == 0) {
         res.status(400).json({ erro: 'Dados incompletos' });
         return;
     }
 
     var db = await models.connect();
     var quadro = await db.Quadro.findOne({ _id: idQuadro }).exec();
-    var usuario = await db.Usuario.findOne({ email: claims.email }).exec();
+    // var usuario = await db.Usuario.findOne({ email: claims.email }).exec();
     var destinatarios = await getDestinatarios(emails);
-    
-    if(!quadro){
+
+    if (!quadro) {
         res.status(400).json({ erro: 'Quadro não encontrado' });
         return;
     }
 
     sg.setApiKey(config.sendGrid.apiKey);
 
-    let transporter = nodemailer.createTransport({
-        service: 'SendGrid',
-        auth: {
-            user: config.sendGrid.email,
-            pass: config.sendGrid.apiKey
-        }
-    })
+    // Adicionando o link epsecífico do quadro para cada destinatário
+    destinatarios.forEach(destinatario => {
+        var email = destinatario.email;
+        destinatario.link = `${config.frontend.hostname}/quadros/compartilhar?email=${{ email }}&idQuadro=${{ idQuadro }}`;
+    });
 
-    var link = config.frontend.hostname + "quadroCompartilhado/" + quadro._id;
-    
-    for (var i = 0; i < destinatarios.length; i++) {
-        try{            
-            console.log("🚀 ~ file: usuarios.js:409 ~ router.post ~ link:", link)
-            var destinatario = destinatarios[i];
-            console.log("🚀 ~ file: usuarios.js:413 ~ router.post ~ destinatario:", destinatario)
-            var email = {
+    // Enviar os e-mails em lote
+    Promise.all(
+        destinatarios.map(destinatario => {
+            const { email, link } = destinatario;
+
+            const msg = {
                 from: {
                     name: "Equipe TaskVerse",
                     email: config.sendGrid.fromEmail
                 },
-                to: destinatario.email,
-                subject: "Convite para acompanhar quadro",
-                templateId: "d-a03af7299e224fea9334ae6f401a811e",
-                dynamicTemplateDatabase: {
-                    urlSeguir: link
+                to: email,
+                subject: "Compartilhamento de quadro",
+                templateId: "d-f5a5b386ffc448f48bc2122c8c658a88",
+                dynamicTemplateData: {
+                    buttonCpt: link
                 }
-            }
-    
-            sg.send(email);
-        }
-        catch(err){
-            console.log(err);
-            res.status(400).json({ erro: 'Erro ao enviar email' });
-        }        
-    }
+            };
 
-    res.json({ message: 'Email enviado com sucesso' });
+            return sg.send(msg);
+        })
+    )
+        .then(() => {
+            res.json({ message: 'E-mails enviados com sucesso' });
+        })
+        .catch(error => {
+            res.status(500).json({ erro: 'Erro ao enviar e-mails ' + error });
+        });
 });
-    
 
-    
+
+
 
 //
 // Funções auxiliares
@@ -486,7 +481,7 @@ function verificaValidadeTokenLogin(dateToken, maximoHoras) {
 async function getDestinatarios(emails) {
     var db = await models.connect();
     var usuarios = await db.Usuario.find({ email: { $in: emails } }).exec();
-    
+
     return usuarios;
 }
 
