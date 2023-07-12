@@ -103,7 +103,8 @@ router.put('/:id', async function(req, res) {
 });
 
 // endpoint para atualizar um card em uma lista
-router.put('/:id/card', async function(req, res) {
+router.put('/:id/card', async function(req, res) {    
+    console.log("🚀 ~ file: listas.js:96 ~ router.put ~ req.body:", req.body)
     var db = await models.connect();
     var lista = await db.Lista.findById(req.params.id);    
     var indexCardNovo = findCardIndexById(lista, req.body._id);
@@ -120,8 +121,12 @@ router.put('/:id/card', async function(req, res) {
         lista.cards.push({
             conteudo: conteudoNovo,
             dtCriacao: req.body.dtCriacao === "" ? Date.now() : req.body.dtCriacao,
-            dtUltimaEdicao: Date.now()
+            dtUltimaEdicao: Date.now(),
+            arquivoSalvo: req.body.arquivoSalvo || ''
         });
+    }
+    else if (req.body.arquivoSalvo !== ""){
+        lista.cards[indexCardNovo].arquivoSalvo = req.body.arquivoSalvo         
     }
     else {
         lista.cards[indexCardNovo].conteudo = conteudoNovo !== "" ? conteudoNovo : lista.cards[indexCardNovo].conteudo;
@@ -140,7 +145,6 @@ router.post('/:id/card/:idCard/pdf', upload.single('arquivo'), async function(re
     var idCard = req.params.idCard;
     var indexCardNovo = findCardIndexById(lista, idCard);
     var arquivo = req.file;
-    console.log("🚀 ~ file: listas.js:138 ~ router.post ~ arquivo:", arquivo)
 
     if (!lista) {
         res.status(404).json({ erro: 'Lista não encontrada!' });
@@ -167,11 +171,11 @@ router.post('/:id/card/:idCard/pdf', upload.single('arquivo'), async function(re
     }
     
     // Nome do arquivo no Dropbox
-    const nomeArquivoDropbox = '/' + arquivo.originalname ;
+    const nomeArquivoDropbox = idCard + '_' + arquivo.originalname ;
 
     // Caminho do arquivo no Dropbox
     const caminhoArquivoDropbox = '/' + nomeArquivoDropbox;
-    
+
     dropbox(
         {
           resource: 'files/upload',
@@ -182,21 +186,12 @@ router.post('/:id/card/:idCard/pdf', upload.single('arquivo'), async function(re
         },
         (err, result) => {
           if (err) {
-            console.error('Erro ao enviar o arquivo para o Dropbox:', err);
-            return res.status(500).send('Erro ao enviar o arquivo para o Dropbox');
+            return res.status(500).json({ erro: 'Erro ao enviar o arquivo para o Dropbox!' });
           }
-    
-          console.log('Arquivo PDF enviado para o Dropbox:', result);
+          return res.status(200).json({ message: 'Arquivo enviado com sucesso!', caminhoArquivoDropbox: caminhoArquivoDropbox }) });
           
         }
       );
-
-
-      lista.cards[indexCardNovo].arquivoSalvo = caminhoArquivoDropbox;
-      await lista.save();
-      
-      return res.status(200).send('Arquivo enviado com sucesso para o Dropbox');
-});
 
 // endpoint para abrir um arquivo pdf de um card no dropbox
 router.get('/:id/card/:idCard/pdf', async function(req, res) {
@@ -227,20 +222,25 @@ router.get('/:id/card/:idCard/pdf', async function(req, res) {
     }
 
     dropbox({
-            resource: 'files/download',
-            parameters: {
-                path: caminhoArquivoDropbox
-            }},
-        (err) => {
-            if (err) {
-                return res.status(500).json({ erro: 'Erro ao baixar o arquivo!' + err });
-            }
+        resource: 'sharing/create_shared_link_with_settings',
+        parameters: {
+          path: caminhoArquivoDropbox
+        }
+      },
+      (err, result) => {
+        if (err) {
+          console.error('Erro ao obter o link compartilhado:', err);
+          
+          return res.status(404).json({ erro: 'Erro ao obter o link compartilhado!' });
+        }
+    
+        const linkCompartilhado = result.url;
+        console.log("🚀 ~ file: listas.js:236 ~ router.get ~ linkCompartilhado:", linkCompartilhado)
+    
+        return res.status(200).json({ linkCompartilhado: linkCompartilhado });
+      }
+    );
 
-            console.log('Arquivo PDF baixado do Dropbox:', result);
-
-        });
-
-    return res.status(200).json(result);
 });
 
             
@@ -295,6 +295,29 @@ function findCardIndexById(lista, idCard) {
         }
     }
     return -1;
+}
+
+// função para enviar um arquivo para o dropbox
+function uploadFileToDropbox(arquivo, caminhoArquivoDropbox) {
+    dropbox(
+        {
+          resource: 'files/upload',
+          parameters: {
+            path: caminhoArquivoDropbox
+          },
+          readStream: fs.createReadStream(arquivo.path)
+        },
+        (err, result) => {
+          if (err) {
+            console.error('Erro ao enviar o arquivo para o Dropbox:', err);
+            return null;
+          }
+
+          console.log("🚀 ~ file: listas.js:217 ~ uploadFileToDropbox ~ result", result)
+          return result;
+          
+        }
+      );
 }
 
 module.exports = router;

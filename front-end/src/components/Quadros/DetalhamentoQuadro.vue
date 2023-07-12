@@ -97,7 +97,7 @@
 
                                             <v-tooltip v-if="card.arquivoSalvo !== ''" bottom>
                                               <template v-slot:activator="{ on }">
-                                                <v-btn icon v-on="on" @click="abrirArquivo(lista, card)">
+                                                <v-btn icon v-on="on" @click="abrirArquivo(lista, card), loading=true">
                                                   <v-icon color="success">mdi-attachment</v-icon>
                                                 </v-btn>
                                               </template>
@@ -681,15 +681,30 @@
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }})
-                .then(() => {
-                    this.resetarVariaveis();
-                    this.recuperaListas();
-                    this.loading = false;
-                })
-                .catch(error => {
-                    this.error = error;
-                    this.loading = false;
-                });
+                .then((result) => {
+                    console.log(result.data.caminhoArquivoDropbox);
+                    axios.put(this.httpOptions.baseURL + '/listas/' + idLista + '/card/', {
+                      arquivoSalvo: result.data.caminhoArquivoDropbox,
+                      _id: card._id
+                    })
+                      .then(() => {
+                          console.log("Arquivo enviado com sucesso!");
+                          this.resetarVariaveis();
+                          this.recuperaListas();
+                          console.log("Arquivo enviado com sucesso!");
+                          
+                        })
+                        .catch(error => {
+                          console.log("🚀 ~ file: DetalhamentoQuadro.vue:700 ~ .then ~ error:", error)
+                          this.error = error;
+                          this.loading = false;
+                        });
+                      })
+                      .catch(error => {
+                        console.log("🚀 ~ file: DetalhamentoQuadro.vue:706 ~ error:", error)
+                        this.error = error;
+                        this.loading = false;
+                      });
         },
 
         // Abre a caixa de diálogo para exibir um pdf de um card
@@ -707,19 +722,19 @@
             var idLista = lista._id;
             var idCard = card._id;
 
-            axios.get(this.httpOptions.baseURL + '/listas/' + idLista + '/card/' + idCard + '/pdf', {
-                responseType: 'blob'
-            })
+            axios.get(this.httpOptions.baseURL + '/listas/' + idLista + '/card/' + idCard + '/pdf')
             .then(response => {
-                var fileURL = window.URL.createObjectURL(new Blob([response.data]));
-                window.open(fileURL);
-                this.loading = false;
+                console.log("🚀 ~ file: DetalhamentoQuadro.vue:728 ~ response:", response)
+                window.open(response.data.linkCompartilhado);                
                 this.resetarVariaveis();
-            })
-            .catch(error => {
+                this.loading = false;
+                
+              })
+              .catch(error => {
+                console.log("🚀 ~ file: DetalhamentoQuadro.vue:736 ~ error:", error)
                 this.error = error;
                 this.loading = false;
-            });
+              });
         },
 
         
