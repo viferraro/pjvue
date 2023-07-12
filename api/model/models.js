@@ -64,6 +64,7 @@ async function connect() {
             corTexto: String,
             editavel: [],
             favorito: [],
+            acesso: [],
             listas: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lista' }]
         }
 
@@ -73,6 +74,7 @@ async function connect() {
                 conteudo: String,
                 dtCriacao: Date,
                 dtUltimaEdicao: Date,
+                arquivoSalvo: String,
             }]
         }
 

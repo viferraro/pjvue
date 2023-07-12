@@ -15,28 +15,12 @@ router.get('/', async function(req, res) {
         return res.status(401).json({ message: 'Acesso não autorizado.' });
     }    
 
-    var page = req.query.page || 1;
-    var itemsPerPage = req.query.itemsPage || 5;
-    var filter = req.query.filter || '';
-
     var db = await models.connect();
-    const regex = new RegExp(filter, "i");
 
     var usuario = await db.Usuario.findOne({ email: claims.email });    
-    
-    // var queryCount = await db.Quadro.find({ _id: { $in: usuario.quadros } })
-    // var totalItems = await queryCount.count();
 
     var queryList = db.Quadro
-        .find({ _id: { $in: usuario.quadros } })
-        .limit(itemsPerPage)
-        .skip(itemsPerPage * (page-1));
-
-    if (req.query.sortField) {
-        var sortField = req.query.sortField || '';
-        var sortDesc = (req.query.sortDesc == "true") ? "descending" : "ascending";
-        queryList = queryList.sort([[sortField, sortDesc]]);
-    }
+        .find({ _id: { $in: usuario.quadros } });
 
     var quadros = await queryList.exec();
     res.json({ quadros });    
@@ -77,7 +61,8 @@ router.post('/', async function(req, res) {
         corFundo: corFundo,
         corTexto: corTexto,
         editavel: editavel,
-        favorito: favorito
+        favorito: favorito,
+        acesso: [claims.email]
     });
 
     // Adiciona o quadro ao usuario
@@ -106,11 +91,11 @@ router.put('/:id', async function(req, res) {
         return;
     }
 
-    quadro.titulo = req.body.titulo || quadro.titulo;
-    quadro.corFundo = req.body.corFundo || quadro.corFundo;
-    quadro.corTexto = req.body.corTexto || quadro.corTexto;
-    quadro.editavel = req.body.editavel != null ? req.body.editavel : quadro.editavel;
-    quadro.favorito = req.body.favorito != null ? req.body.favorito : quadro.favorito;
+    quadro.titulo = req.body.titulo !== null ? req.body.titulo : quadro.titulo;
+    quadro.corFundo = req.body.corFundo !== null ? req.body.corFundo : quadro.corFundo;
+    quadro.corTexto = req.body.corTexto !== null ? req.body.corTexto : quadro.corTexto;
+    quadro.editavel = req.body.editavel !== null ? req.body.editavel : quadro.editavel;
+    quadro.favorito = req.body.favorito !== null ? req.body.favorito : quadro.favorito;
     quadro.listas = req.body.listas || quadro.listas;
     await quadro.save();
 
@@ -135,13 +120,27 @@ router.delete('/:id', async function(req, res) {
         return;
     }
 
-    // Remove o quadro do usuario
-    usuario.quadros.map((quadro, index) => {
-        if (quadro._id == req.params.id) {
-            usuario.quadros.splice(index, 1);
+    // Remove o quadro dos usuarios que estão com acesso
+    for (var i = 0; i < quadro.acesso.length; i++) {
+        var email = quadro.acesso[i];
+        var usuario = await db.Usuario.findOne({ email: email });
+        
+        if (!usuario) {
+            continue;
         }
-    });
-    await usuario.save();
+
+        var quadroRetirar = usuario.quadros.indexOf(quadro._id);
+
+        if (quadroRetirar > -1) {
+            usuario.quadros.splice(quadroRetirar, 1);
+        }
+        else {
+            continue;
+        }
+
+        await usuario.save();
+    }
+    
 
     await quadro.deleteOne();
 
