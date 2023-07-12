@@ -6,7 +6,7 @@ const models = require('../model/models.js');
 const auth = require('../auth/auth.js');
 
 // endpoint para recuperar as colecoes paginadas
-router.get('/', async function(req, res) {
+router.get('/', async function (req, res) {
 
     var claims = getClaims(req, res);
     console.log("🚀 ~ file: colecoes.js:12 ~ router.get ~ claims:", claims)
@@ -15,25 +15,12 @@ router.get('/', async function(req, res) {
         return res.status(401).json({ message: 'Acesso não autorizado.' });
     }
 
-    var page = req.query.page || 1;
-    var itemsPerPage = req.query.itemsPage || 5;
-    var filter = req.query.filter || '';
-
     var db = await models.connect();
-    const regex = new RegExp(filter, "i");
 
     var usuario = await db.Usuario.findOne({ email: claims.email });
 
     var queryList = db.Colecao
         .find({ _id: { $in: usuario.colecoes } })
-        .limit(itemsPerPage)
-        .skip(itemsPerPage * (page-1));
-
-    if (req.query.sortField) {
-        var sortField = req.query.sortField || '';
-        var sortDesc = (req.query.sortDesc == "true") ? "descending" : "ascending";
-        queryList = queryList.sort([[sortField, sortDesc]]);
-    }
 
     var colecoes = await queryList.exec();
     res.json({ colecoes });
@@ -41,11 +28,14 @@ router.get('/', async function(req, res) {
 
 
 // endpoint para recuperar uma colecao
-router.get('/:id', async function(req, res) {
+router.get('/:id', async function (req, res) {
 
-    if (!getClaims(req, res)) {
+    var claims = getClaims(req, res);
+    console.log("🚀 ~ file: quadros.js:12 ~ router.get ~ claims:", claims)
+
+    if (claims === null) {
         return res.status(401).json({ message: 'Acesso não autorizado.' });
-    }
+    }  
 
     var db = await models.connect();
     var colecao = await db.Colecao.findById(req.params.id);
@@ -53,7 +43,7 @@ router.get('/:id', async function(req, res) {
 });
 
 // endpoint para criar uma colecao
-router.post('/', async function(req, res) {
+router.post('/', async function (req, res) {
 
     var claims = getClaims(req, res);
     console.log("🚀 ~ file: colecoes.js:12 ~ router.get ~ claims:", claims)
@@ -62,13 +52,17 @@ router.post('/', async function(req, res) {
         return res.status(401).json({ message: 'Acesso não autorizado.' });
     }
 
+    if (!req.body.titulo) {
+        return res.status(400).json({ message: 'O título da coleção é obrigatório!' });
+    }
+
     var db = await models.connect();
-    var titulo = req.body.titulo;
+    var titulo = req.body.titulo !== undefined ? req.body.titulo : 'Coleção sem título';
     var corFundo = req.body.corFundo || "#4071ad";
     var corTexto = req.body.corTexto || "#000000";
 
     var colecao = new db.Colecao({
-        titulo: titulo,
+        nome: titulo,
         corFundo: corFundo,
         corTexto: corTexto,
     });
@@ -85,11 +79,14 @@ router.post('/', async function(req, res) {
 });
 
 // endpoint para atualizar uma colecao
-router.put('/:id', async function(req, res) {
+router.put('/:id', async function (req, res) {
 
-    if (!getClaims(req, res)) {
+    var claims = getClaims(req, res);
+    console.log("🚀 ~ file: quadros.js:12 ~ router.get ~ claims:", claims)
+
+    if (claims === null) {
         return res.status(401).json({ message: 'Acesso não autorizado.' });
-    }
+    }  
 
     var db = await models.connect();
     var colecao = await db.Colecao.findById(req.params.id);
@@ -106,12 +103,53 @@ router.put('/:id', async function(req, res) {
     res.json({ message: 'Colecao atualizado com sucesso!' });
 });
 
-// endpoint para deletar uma colecao
-router.delete('/:id', async function(req, res) {
+// endpoint para inserir quadros na coleção
+router.put('/:id/quadros', async function (req, res) {
+    var claims = getClaims(req, res);
+    console.log("🚀 ~ file: quadros.js:12 ~ router.get ~ claims:", claims)
 
-    if (!getClaims(req, res)) {
+    if (claims === null) {
         return res.status(401).json({ message: 'Acesso não autorizado.' });
     }
+
+    var db = await models.connect();
+    var colecao = await db.Colecao.findById(req.params.id);
+    
+    if (!colecao) {
+        res.json({ message: 'Colecao não encontrada!' });
+        return;
+    }
+
+    var quadros = req.body.quadros;
+    try {
+        quadros.forEach((quadro) => {
+            
+            if (!colecao.quadros.includes(quadro)) {
+                colecao.quadros.push(quadro);                
+            }
+        });
+    } catch (err) {
+        res.status(400).json({ message: 'Não foi possível adicionar os quadros!' });
+        return;
+    }
+
+    await colecao.save();
+
+    res.status(200).json({ message: 'Quadros adicionados com sucesso!' });
+});
+
+
+
+
+// endpoint para deletar uma colecao
+router.delete('/:id', async function (req, res) {
+
+    var claims = getClaims(req, res);
+    console.log("🚀 ~ file: quadros.js:12 ~ router.get ~ claims:", claims)
+
+    if (claims === null) {
+        return res.status(401).json({ message: 'Acesso não autorizado.' });
+    }  
 
     var db = await models.connect();
     var colecao = await db.Colecao.findById(req.params.id);

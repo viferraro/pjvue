@@ -86,7 +86,7 @@ const router = new Router({
       component: ColecaoForm
     },
     {
-      path: '/colecoes/',
+      path: '/colecoes',
       name: 'colecao',
       component: Colecao
     },
