@@ -56,13 +56,15 @@
                                       {{ quadro.titulo }}
 
                                       <v-expand-transition>
-                                        <div v-if="hover" class="d-flex transition-fast-in-fast-out "
-                                          style="height: 100%;">
+                                        <div v-if="hover"
+                                          class="d-flex transition-fast-in-fast-out"
+                                          :style="{ marginTop: '2%'}"
+                                        >
 
                                           <v-tooltip bottom>
                                             <template v-slot:activator="{ on }">
-                                              <v-btn icon v-on="on" color="black" @click="detalharQuadro(quadro._id)">
-                                                <v-icon>mdi-eye-circle</v-icon>
+                                              <v-btn icon v-on="on" :style="{ backgroundColor: corAjustada(quadro.corFundo) }" @click="detalharQuadro(quadro._id)">
+                                                <v-icon :color="black" >mdi-eye-circle</v-icon>
                                               </v-btn>
                                             </template>
                                             <span>Detalhar quadro</span>
@@ -71,8 +73,8 @@
                                           <v-show v-if="permiteEdicao(quadro.editavel)">
                                             <v-tooltip bottom>
                                               <template v-slot:activator="{ on }">
-                                                <v-btn icon v-on="on" color="warning" @click="editarQuadro(quadro._id)">
-                                                  <v-icon>mdi-pencil-circle</v-icon>
+                                                <v-btn icon v-on="on" :style="{ backgroundColor: corAjustada(quadro.corFundo) }" @click="editarQuadro(quadro._id)">
+                                                  <v-icon color="warning">mdi-pencil-circle</v-icon>
                                                 </v-btn>
                                               </template>
                                               <span>Editar quadro</span>
@@ -80,8 +82,8 @@
 
                                             <v-tooltip bottom>
                                               <template v-slot:activator="{ on }">
-                                                <v-btn icon v-on="on" color="error" @click="abrirExcluir(quadro)">
-                                                  <v-icon>mdi-delete-circle</v-icon>
+                                                <v-btn icon v-on="on" :style="{ backgroundColor: corAjustada(quadro.corFundo) }" @click="abrirExcluir(quadro)">
+                                                  <v-icon color="error">mdi-delete-circle</v-icon>
                                                 </v-btn>
                                               </template>
                                               <span>Excluir quadro</span>
@@ -90,9 +92,9 @@
 
                                           <v-tooltip bottom>
                                             <template v-slot:activator="{ on }">
-                                              <v-btn icon v-on="on" color="success"
+                                              <v-btn icon v-on="on" :style="{ backgroundColor: corAjustada(quadro.corFundo) }"
                                                 @click="abrirCompartilhar(quadro)">
-                                                <v-icon>mdi-share-circle</v-icon>
+                                                <v-icon  color="success">mdi-share-circle</v-icon>
                                               </v-btn>
                                             </template>
                                             <span>Compartilhar quadro</span>
@@ -323,6 +325,7 @@ export default {
     // Recupera os quadros do usuário
     recuperaQuadros: function () {
       this.quadros = null;
+      this.error = "";
       this.loading = true;
       axios.get(this.httpOptions.baseURL + '/quadros', this.httpOptions)
         .then(response => {
@@ -347,11 +350,11 @@ export default {
     },
 
     // Recupera os usuários cadastrados
-    recuperaUsuarios: function () {
+    recuperaUsuarios: function (listaDeAcesso) {
       axios.get(this.httpOptions.baseURL + '/usuarios')
         .then(response => {
           var dados = response.data.items;
-          this.usuarios = dados.filter(usuario => usuario.email != this.$root.credentials.email);
+          this.usuarios = dados.filter(usuario => !listaDeAcesso.includes(usuario.email));
         })
         .catch(error => {
           this.error = error;
@@ -429,9 +432,9 @@ export default {
     },
 
     //função para direcionar o botão de compartilhar
-    compartilharQuadro: function (idQuadro) {
-      this.$router.replace("/quadros/compartilhar/" + idQuadro)
-    },
+    // compartilharQuadro: function (idQuadro) {
+    //   this.$router.replace("/quadros/compartilhar/" + idQuadro)
+    // },
 
     // Abre a janela de formulário para compartilhar o quadro
     abrirCompartilhar: function (quadro) {
@@ -439,14 +442,16 @@ export default {
       this.usuariosSelecionados = [];
       this.quadroEscolhido = quadro;
       var email = this.$root.credentials.email;
+      this.recuperaUsuarios(quadro.acesso);
       this.usuarioEdita = this.quadroEscolhido.editavel.includes(email);
       this.dialogCompartilhar = true;
     },
 
     // Compartilha o quadro com outro usuário
     compartilharQuadro: function () {
+      
       axios.post(this.httpOptions.baseURL + '/usuarios/compartilhar/' + this.quadroEscolhido._id, {
-        usuarios: this.emailsSelecionados
+        emails: this.emailsSelecionados
       },
         this.httpOptions)
         .then(() => {
@@ -454,12 +459,11 @@ export default {
           this.dialogCompartilhar = false;
           this.recuperaQuadros();
           this.sucesso = true;
-          console.log("Quadro compartilhado com sucesso!");
           this.$router.replace("/quadros/");
         })
         .catch(error => {
           this.dialogCompartilhar = false;
-          this.error = error;
+          this.error = error.response.data.erro;
         });
     },
 
@@ -485,7 +489,7 @@ export default {
 
   mounted() {
     this.recuperaQuadros();
-    this.recuperaUsuarios();
+    // this.recuperaUsuarios();
   }
 }
 </script>

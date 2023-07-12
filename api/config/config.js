@@ -15,8 +15,12 @@ module.exports = {
     },
 
     sendGrid: {
-        apiKey: process.env.SENDGRID_API_KEY,
-        email: process.env.SENDGRID_USER,
+        apiKey: process.env.SENDGRID_API_KEY_ERIC,
+        email: process.env.SENDGRID_USER_ERIC,
         fromEmail: process.env.SENDGRID_FROM_EMAIL
+    },
+
+    dropbox: {
+        accessToken: process.env.DROPBOX_API_KEY
     }
 }
