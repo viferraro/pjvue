@@ -204,23 +204,24 @@ export default {
     //   // Retorna a cor clareada no formato hexadecimal
     //   return lightenedHex;
     // },
-    criaColecao() {
-      axios.post(this.httpOptions.baseURL + '/colecoes/', {
-        titulo: this.nomeColecao,
-        corFundo: this.corFundo,
-        corTexto: this.corTexto,
 
-      }, this.httpOptions)
-        .then(response => {
-          console.log(response)
-          this.errorMessage = ""
-          this.$router.replace('/colecoes/')
-        })
-        .catch(error => {
-          console.log(error)
-          this.errorMessage = error.response.data.erro
-        });
-    },
+    // função para criar uma nova coleção
+    criaColecao: function() {
+      if (this.nomeColecao) {
+        axios.post(this.httpOptions.baseURL + '/colecoes/', {
+          nome: this.nomeColecao,
+          corFundo: this.corFundo,
+          corTexto: this.corTexto,
+        }, this.httpOptions)
+          .then(() => {
+            console.log("🚀 ~ file: FormColecoes.vue:217 ~ .then ~ response:", response)
+            this.$router.replace('/colecoes/')
+          })
+          .catch((error) => {
+            this.error = error.response.data.message
+          })
+      }
+    }
   }
-}   
+}
 </script>
