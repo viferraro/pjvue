@@ -78,23 +78,15 @@ router.post('/', async function(req, res) {
 router.put('/:id', async function(req, res) {
     var db = await models.connect();
     var lista = await db.Lista.findById(req.params.id);    
-    var conteudo = req.body.conteudoCard;    
-    console.log("🚀 ~ file: listas.js:82 ~ router.put ~ card:", conteudo)
+    var tituloNovo = req.body.titulo;
+    console.log("🚀 ~ file: listas.js:82 ~ router.put ~ tituloNovo:", tituloNovo)
 
     if (!lista) {
         res.json({ message: 'Lista não encontrada!' });
         return;
     }
-    
-    if (conteudo !== "" ) {
-        lista.cards.push({
-            conteudo: conteudo,
-            dtCriacao: Date.now(),
-            dtUltimaEdicao: Date.now()
-        });
-    }
 
-    lista.titulo = req.body.titulo || lista.titulo;
+    lista.titulo = tituloNovo !== "" ? tituloNovo : lista.titulo;
     lista.save();
 
     return res.json({ message: 'Lista atualizada com sucesso!' });
