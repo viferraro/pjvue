@@ -1,13 +1,21 @@
 var express = require('express');
 var router = express.Router();
+var multer = require('multer');
+var fs = require('fs');
+// const { Dropbox } = require('dropbox');
+const Dropbox = require('dropbox-v2-api');
 
 const config = require('../config/config.js');
 const models = require('../model/models.js');
 
+// var dbx = new Dropbox({ accessToken: config.dropbox.accessToken });
+const dropbox = new Dropbox.authenticate({ token: config.dropbox.accessToken });
+  
+var upload = multer({ dest: 'uploads/' });
+
+
 // endpoint para recuperar as listas paginadas 
 router.get('/', async function(req, res) {
-    var page = req.query.page || 1;
-    var itemsPerPage = req.query.itemsPage || 5;
     var idQuadro = req.query.idQuadro;
 
     var db = await models.connect();
@@ -18,9 +26,7 @@ router.get('/', async function(req, res) {
     var totalItems = await queryCount.count();
 
     var queryList = db.Lista
-        .find({ _id: { $in: quadro.listas }})
-        .limit(itemsPerPage)
-        .skip(itemsPerPage * (page - 1));   
+        .find({ _id: { $in: quadro.listas }});   
     
     var listas = await queryList.exec();
     var cards = [];
@@ -54,16 +60,20 @@ router.post('/', async function(req, res) {
 
     var quadro = await db.Quadro.findById(idQuadro);
 
+    if (!quadro) {
+        res.status(404).json({ message: 'Quadro não encontrado!' });
+        return;
+    }
+
     var lista = new db.Lista({
-        idQuadro: idQuadro,
-        titulo: titulo
+        titulo: titulo,
+        cards: []
     });
 
     try {
         quadro.listas.push(lista);
     } catch (error) {
-        console.log(error);
-        res.json({ message: 'Erro ao criar lista!' +  error });
+        res.status(500).json({ message: 'Erro ao criar lista!' +  error });
         return;
     }
 
@@ -71,7 +81,7 @@ router.post('/', async function(req, res) {
 
     await lista.save();
 
-    return res.json({ message: 'Lista criada com sucesso com o id ' + lista._id + ' !' });
+    return res.status(200).json({ message: 'Lista criada com sucesso com o id ' + lista._id + ' !' });
 });
 
 // endpoint para atualizar uma lista
@@ -96,31 +106,144 @@ router.put('/:id', async function(req, res) {
 router.put('/:id/card', async function(req, res) {
     var db = await models.connect();
     var lista = await db.Lista.findById(req.params.id);    
-    var cardNovo = findCardIndexById(lista, req.body._id);
+    var indexCardNovo = findCardIndexById(lista, req.body._id);
+    var conteudoNovo = req.body.conteudo;
     console.log("🚀 ~ file: listas.js:103 ~ router.put ~ lista:", lista)
     console.log("🚀 ~ file: listas.js:111 ~ router.put ~ req.body:", req.body)
 
     if (!lista) {
-        res.json({ message: 'Lista não encontrada!' });
+        res.status(404).json({ message: 'Lista não encontrada!' });
         return;
     }
     
-    if (cardNovo == -1) {
+    if (indexCardNovo == -1) {
         lista.cards.push({
-            conteudo: req.body.conteudo,
-            dtCriacao: req.body.dtCriacao,
+            conteudo: conteudoNovo,
+            dtCriacao: req.body.dtCriacao === "" ? Date.now() : req.body.dtCriacao,
             dtUltimaEdicao: Date.now()
         });
     }
     else {
-        lista.cards[cardNovo].conteudo = req.body.conteudo || lista.cards[cardNovo].conteudo;
-        lista.cards[cardNovo].dtUltimaEdicao = Date.now();
+        lista.cards[indexCardNovo].conteudo = conteudoNovo !== "" ? conteudoNovo : lista.cards[indexCardNovo].conteudo;
+        lista.cards[indexCardNovo].dtUltimaEdicao = Date.now();
     }
 
     lista.save();
 
-    return res.json({ message: 'Lista atualizada com sucesso!' });
+    return res.status(200).json({ message: 'Lista atualizada com sucesso!' });
 });
+
+// endpoint para salvar um arquivo pdf de um card no dropbox
+router.post('/:id/card/:idCard/pdf', upload.single('arquivo'), async function(req, res) {
+    var db = await models.connect();
+    var lista = await db.Lista.findById(req.params.id);
+    var idCard = req.params.idCard;
+    var indexCardNovo = findCardIndexById(lista, idCard);
+    var arquivo = req.file;
+    console.log("🚀 ~ file: listas.js:138 ~ router.post ~ arquivo:", arquivo)
+
+    if (!lista) {
+        res.status(404).json({ erro: 'Lista não encontrada!' });
+        return;
+    }
+
+    var card = lista.cards.find(card => {
+        return card._id == idCard;
+    });
+
+    if (!card) {
+        res.status(404).json({ erro: 'Card não encontrado!' });
+        return;
+    }
+
+    if (!arquivo) {
+        res.status(404).json({ erro: 'Arquivo não encontrado!' });
+        return;
+    }
+
+    if (arquivo.mimetype !== 'application/pdf') {
+        res.status(404).json({ erro: 'Arquivo não é um PDF!' });
+        return;
+    }
+    
+    // Nome do arquivo no Dropbox
+    const nomeArquivoDropbox = '/' + arquivo.originalname ;
+
+    // Caminho do arquivo no Dropbox
+    const caminhoArquivoDropbox = '/' + nomeArquivoDropbox;
+    
+    dropbox(
+        {
+          resource: 'files/upload',
+          parameters: {
+            path: caminhoArquivoDropbox
+          },
+          readStream: fs.createReadStream(arquivo.path)
+        },
+        (err, result) => {
+          if (err) {
+            console.error('Erro ao enviar o arquivo para o Dropbox:', err);
+            return res.status(500).send('Erro ao enviar o arquivo para o Dropbox');
+          }
+    
+          console.log('Arquivo PDF enviado para o Dropbox:', result);
+          
+        }
+      );
+
+
+      lista.cards[indexCardNovo].arquivoSalvo = caminhoArquivoDropbox;
+      await lista.save();
+      
+      return res.status(200).send('Arquivo enviado com sucesso para o Dropbox');
+});
+
+// endpoint para abrir um arquivo pdf de um card no dropbox
+router.get('/:id/card/:idCard/pdf', async function(req, res) {
+    var db = await models.connect();
+    var lista = await db.Lista.findById(req.params.id);
+    var idCard = req.params.idCard;
+    var indexCardNovo = findCardIndexById(lista, idCard);
+    
+    if (!lista) {
+        res.status(404).json({ erro: 'Lista não encontrada!' });
+        return;
+    }
+    
+    var card = lista.cards.find(card => {
+        return card._id == idCard;
+    });
+    
+    if (!card) {
+        res.status(404).json({ erro: 'Card não encontrado!' });
+        return;
+    }
+    
+    var caminhoArquivoDropbox = lista.cards[indexCardNovo].arquivoSalvo;
+    
+    if (!caminhoArquivoDropbox) {
+        res.status(404).json({ erro: 'Arquivo não encontrado!' });
+        return;
+    }
+
+    dropbox({
+            resource: 'files/download',
+            parameters: {
+                path: caminhoArquivoDropbox
+            }},
+        (err) => {
+            if (err) {
+                return res.status(500).json({ erro: 'Erro ao baixar o arquivo!' + err });
+            }
+
+            console.log('Arquivo PDF baixado do Dropbox:', result);
+
+        });
+
+    return res.status(200).json(result);
+});
+
+            
 
 // endpoint para deletar uma lista
 router.delete('/:id', async function(req, res) {

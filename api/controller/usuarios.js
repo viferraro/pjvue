@@ -114,19 +114,41 @@ router.put('/:email', async function (req, res) {
         return;
     }
 
-    // if (senhaAtual === bcrypt.hashSync(senhaNova, 10)) {
-    //     res.status(400).json({ erro: 'A senha nova não pode ser igual à senha anterior.' });
-    //     return;
-    // }
-    if (body.quadro !== null) {
-        usuario.quadros.push(body.quadro);
-    }
     usuario.nome = nome !== "" ? nome : usuario.nome;
     usuario.senha = senhaNova !== "" ? bcrypt.hashSync(senhaNova, 10) : usuario.senha;
     usuario.dataAtualizacao = new Date();
 
     await usuario.save();
     return res.json({ message: 'Usuário atualizado com sucesso' });
+});
+
+// endpoint para adicionar um quadro compartilhado à lista de quadros
+router.put('/quadros/:email', async function (req, res) {
+    var db = await models.connect();
+    var email = req.params.email;
+    var quadro = req.body.quadro;
+
+    if (!quadro) {
+        res.status(400).json({ erro: 'Dados incompletos' });
+        return;
+    }
+
+    usuario = await db.Usuario.findOne({ email: email }).exec();
+
+    if (!usuario) {
+        res.status(404).json({ erro: 'Usuário não encontrado' });
+        return;
+    }
+
+    if (usuario.quadros.some(q => q._id == quadro._id)) {
+        res.status(400).json({ erro: 'Quadro já adicionado' });
+        return;
+    }
+
+    usuario.quadros.push(quadro);
+
+    await usuario.save();
+    return res.status(200).json({ message: 'Quadro adicionado com sucesso' });
 });
 
 
@@ -372,12 +394,14 @@ router.post('/compartilhar/:idQuadro', async function (req, res) {
     var claims = auth.verifyToken(req, res);
 
     if (!claims) {
-        res.status(401).json({ message: "Usuário não encontrado" });
+        res.status(404).json({ erro: "Usuário não encontrado" });
         return;
     }
 
     var idQuadro = req.params.idQuadro;
+    console.log("🚀 ~ file: usuarios.js:402 ~ idQuadro:", idQuadro)
     var emails = req.body.emails;
+    console.log("🚀 ~ file: usuarios.js:404 ~ emails:", emails)
 
     if (!idQuadro) {
         res.status(400).json({ erro: 'Dados incompletos' });
@@ -391,7 +415,7 @@ router.post('/compartilhar/:idQuadro', async function (req, res) {
 
     var db = await models.connect();
     var quadro = await db.Quadro.findOne({ _id: idQuadro }).exec();
-    // var usuario = await db.Usuario.findOne({ email: claims.email }).exec();
+    var usuario = await db.Usuario.findOne({ email: claims.email }).exec();
     var destinatarios = await getDestinatarios(emails);
 
     if (!quadro) {
@@ -399,12 +423,24 @@ router.post('/compartilhar/:idQuadro', async function (req, res) {
         return;
     }
 
+    console.log("🚀 ~ file: usuarios.js:431 ~ quadro:", quadro)
+
+
+    emails.forEach(email => {
+        quadro.acesso.push(email);
+    });
+
+    console.log("🚀 ~ file: usuarios.js:431 ~ quadro:", quadro)
+
+    await quadro.save();
+    console.log("🚀 ~ file: usuarios.js:431 ~ quadro:", quadro)
+
     sg.setApiKey(config.sendGrid.apiKey);
 
     // Adicionando o link epsecífico do quadro para cada destinatário
     destinatarios.forEach(destinatario => {
         var email = destinatario.email;
-        destinatario.link = `${config.frontend.hostname}/quadros/compartilhar?email=${{ email }}&idQuadro=${{ idQuadro }}`;
+        destinatario.link = config.frontend.hostname + "quadros/compartilhar?email=" + email + "&idQuadro=" + idQuadro;
     });
 
     // Enviar os e-mails em lote
@@ -419,21 +455,23 @@ router.post('/compartilhar/:idQuadro', async function (req, res) {
                 },
                 to: email,
                 subject: "Compartilhamento de quadro",
-                templateId: "d-f5a5b386ffc448f48bc2122c8c658a88",
+                templateId: "d-a03af7299e224fea9334ae6f401a811e",
                 dynamicTemplateData: {
-                    buttonCpt: link
+                    buttonCpt: link,
+                    destinatario: destinatario.nome,
+                    remetente: usuario.nome,
                 }
             };
 
             return sg.send(msg);
         })
     )
-        .then(() => {
-            res.json({ message: 'E-mails enviados com sucesso' });
-        })
-        .catch(error => {
-            res.status(500).json({ erro: 'Erro ao enviar e-mails ' + error });
-        });
+    .then(() => {
+        res.status(200).json({ erro: 'E-mails enviados com sucesso' });
+    })
+    .catch(error => {
+        res.status(500).json({ erro: 'Erro ao enviar e-mails ' + error });
+    });
 });
 
 
