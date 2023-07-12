@@ -15,7 +15,7 @@
                       <v-row class="fill-height" align="center" justify="left">
                         <v-col cols="12">
                           <v-form>
-                            <v-text-field label="Nome da Coleção" requfired v-model="colecao.titulo">
+                            <v-text-field label="Nome da Coleção" requfired v-model="tituloColecao">
                             </v-text-field>
 
                             <!-- <v-row>
@@ -52,7 +52,7 @@
                               </v-col>
                             </v-row> -->
 
-                            <v-btn color="primary" @click="criaColecao" :disabled="!nomeColecao">
+                            <v-btn color="primary" @click="criaColecao" :disabled="!tituloColecao">
                               Salvar
                             </v-btn>
                           </v-form>
@@ -134,18 +134,18 @@ export default {
   data() {
 
     return {
-      
+      colecao: { titulo: "", corFundo: "#4071ad", corTexto: "#000000" },
+      tituloColecao: "",
       error: "",
-      colecao: {titulo: "", corFundo: "#4071ad", corTexto: "#000000" },
 
-      // httpOptions: {
-      //   baseURL: this.$root.config.urlBack,
-      //   headers: {
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'application/json',
-      //     'Authorization': 'Bearer ' + this.$root.credentials.token
-      //   }
-      // },
+      httpOptions: {
+        baseURL: this.$root.config.urlBack,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + this.$root.credentials.token
+        }
+      },
     }
   },
 
@@ -205,19 +205,21 @@ export default {
     // },
 
     // função para criar uma nova coleção
-    criaColecao: function() {
-      if (this.colecao.titulo !== "") {
-        axios.post(this.$root.config.urlBack + '/colecoes/', this.colecao)
-          .then(() => {
-            this.error = ""
-            this.$router.replace('/colecoes/')
-          })
-          .catch((error) => {
-            this.error = error.response.data.message
-          })
-      }
-      this.$router.replace('/colecoes/')
+    criaColecao: function () {
+      // this.colecao.titulo = this.tituloColecao;
+      axios.post(this.httpOptions.baseURL + '/colecoes/', {
+        titulo: this.tituloColecao,
+      }, this.httpOptions)
+        .then(() => {
+          this.error = ""
+          this.$router.replace('/colecoes/')
+        })
+        .catch((error) => {
+          this.error = error.response.data.message
+        })
     }
+    // this.$router.replace('/colecoes/')
   }
 }
+
 </script>
