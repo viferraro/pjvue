@@ -135,8 +135,8 @@ export default {
 
     return {
       nomeColecao: '',
-      quadros: [],
-      items: [],
+      corFundo: "#4071ad",
+      corTexto: "#000000",
       error: "",
 
       httpOptions: {
@@ -207,12 +207,14 @@ export default {
     criaColecao() {
       axios.post(this.httpOptions.baseURL + '/colecoes/', {
         titulo: this.nomeColecao,
+        corFundo: this.corFundo,
+        corTexto: this.corTexto,
 
       }, this.httpOptions)
         .then(response => {
           console.log(response)
           this.errorMessage = ""
-          this.$router.replace('/colecoes')
+          this.$router.replace('/colecoes/')
         })
         .catch(error => {
           console.log(error)
