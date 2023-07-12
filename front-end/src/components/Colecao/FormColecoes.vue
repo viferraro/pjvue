@@ -15,7 +15,7 @@
                       <v-row class="fill-height" align="center" justify="left">
                         <v-col cols="12">
                           <v-form>
-                            <v-text-field label="Nome da Coleção" requfired v-model="nomeColecao">
+                            <v-text-field label="Nome da Coleção" requfired v-model="colecao.titulo">
                             </v-text-field>
 
                             <!-- <v-row>
@@ -134,19 +134,18 @@ export default {
   data() {
 
     return {
-      nomeColecao: '',
-      corFundo: "#4071ad",
-      corTexto: "#000000",
+      
       error: "",
+      colecao: {titulo: "", corFundo: "#4071ad", corTexto: "#000000" },
 
-      httpOptions: {
-        baseURL: this.$root.config.urlBack,
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + this.$root.credentials.token
-        }
-      },
+      // httpOptions: {
+      //   baseURL: this.$root.config.urlBack,
+      //   headers: {
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'application/json',
+      //     'Authorization': 'Bearer ' + this.$root.credentials.token
+      //   }
+      // },
     }
   },
 
@@ -207,20 +206,17 @@ export default {
 
     // função para criar uma nova coleção
     criaColecao: function() {
-      if (this.nomeColecao) {
-        axios.post(this.httpOptions.baseURL + '/colecoes/', {
-          nome: this.nomeColecao,
-          corFundo: this.corFundo,
-          corTexto: this.corTexto,
-        }, this.httpOptions)
+      if (this.colecao.titulo !== "") {
+        axios.post(this.$root.config.urlBack + '/colecoes/', this.colecao)
           .then(() => {
-            console.log("🚀 ~ file: FormColecoes.vue:217 ~ .then ~ response:", response)
+            this.error = ""
             this.$router.replace('/colecoes/')
           })
           .catch((error) => {
             this.error = error.response.data.message
           })
       }
+      this.$router.replace('/colecoes/')
     }
   }
 }
